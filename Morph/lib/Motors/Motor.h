@@ -6,13 +6,13 @@
 class Motor 
 {
 	public:
-    	Motor(int pwmPin, int dirPin, int brkPin, int rev);
+    	Motor(int pwm, int inOne, int inTwo, int rev);
    		void set(int speed);
     	void brake();
 	private:
-    	int m_brk;
     	int m_pwm;
-    	int m_dir;
+		int m_inOne;
+    	int m_inTwo;
     	int reversed;
 
 };

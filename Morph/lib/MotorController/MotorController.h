@@ -8,6 +8,8 @@ class MotorController
 {
     public:
         MotorController();
+        void moveDirection(double angle, double rotate, double speed);
+        void speed(int speed);
     private:
         /* PWM , DIR, BRK, REV */
         Motor motorA = Motor(PWM_0, DIR_0, BRK_0, 0);

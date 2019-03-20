@@ -1,27 +1,25 @@
 #include <Motor.h>
 
-Motor::Motor(int pwmPin, int dirPin, int brkPin, int rev)
+Motor::Motor(int pwm, int inOne, int inTwo, int rev)
 {
     pinMode(pwmPin, OUTPUT);
     pinMode(dirPin, OUTPUT);
     pinMode(brkPin, OUTPUT);
     reversed = rev;
-    m_pwm = pwmPin;
-    m_dir = dirPin;
-    m_brk = brkPin;
+    m_pwm = pwm;
+    m_inOne = inOne;
+    m_inTwo = inTwo;
     analogWriteFrequency(pwm, /* Write Speed */ 19000);
 }
 
 void Motor::set(int speed)
 {
-    digitalWrite(m_dir, speed > 0 ? !reversed : reversed);
     analogWrite(m_pwm, speed > 0 ? speed : -speed);
-    digitalWrite(m_brk, LOW);
+    digitalWrite(m_inOne, speed > 0 ? HIGH : LOW);
+    digitalWrite(m_inTwo, speed > 0 ? LOW : HIGH);
 }
 
 void Motor::brake()
 {
-    digitalWrite(m_dir, LOW);
     analogWrite(m_pwm, 0);
-    digitalWrite(m_brk, HIGH);
 }

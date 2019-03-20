@@ -4,7 +4,7 @@
 void MotorController::MotorController(){
 }
 
-void MotorController::Speed(int speed){
+void MotorController::speed(int speed){
     motorA.set(speed);
     motorB.set(speed);
     motorC.set(speed);

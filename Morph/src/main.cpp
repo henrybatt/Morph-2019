@@ -1,9 +1,14 @@
 #include <Arduino.h>
+#include <LightSensor.h>
+#include <LightSensorController.h>
+
+LightSensorController lights;
 
 void setup() {
-  // put your setup code here, to run once:
+  Serial.begin(9600);
+  lights.setup();
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  lights.update();
 }

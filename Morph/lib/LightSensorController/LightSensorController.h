@@ -4,10 +4,9 @@
 #include <Arduino.h>
 #include <LightSensor.h>
 #include <Common.h>
-#include <Pins.h>
-#include <Defines.h>
-#include <algorithm>
-#include <iterator>
+#include <Define.h>
+#include <Debug.h>
+
 
 class LightSensorController{
     public:
@@ -22,7 +21,6 @@ class LightSensorController{
         int correctRange(int value, int min, int max);
         int correctAngleRange(int value, int min, int max);
         void calcVectorAngle();
-        void setDangers(int init);
         void updateOnWhite();
         bool inRange(double value, double target, int range);
         void read();

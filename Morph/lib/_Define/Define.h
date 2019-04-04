@@ -94,4 +94,12 @@
 #define LS_J_14 (sqrt(2) / 2)
 #define LS_J_15 (RADIANS_TO_DEGREES * (cos(DEGREES_TO_RADIANS * LS_ANGLE_15)))
 
+// Motor
+#define MOTOR_ANGLE_0 45
+#define MOTOR_ANGLE_1 135
+#define MOTOR_ANGLE_2 225
+#define MOTOR_ANGLE_3 315
+
+
+
 #endif

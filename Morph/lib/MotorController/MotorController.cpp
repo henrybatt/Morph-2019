@@ -1,7 +1,6 @@
 #include <MotorController.h>
-#include <Common.h>
 
-void MotorController::MotorController(){
+MotorController::MotorController(){
 }
 
 void MotorController::speed(int speed){
@@ -11,7 +10,7 @@ void MotorController::speed(int speed){
     motorD.set(speed);
 }
 
-void Motors::moveDirection(double angle, double rotate, double speed) {
+void MotorController::moveDirection(double angle, double rotate, double speed) {
     if(speed != 0) {
         double ratio[MOTOR_NUM] = {
             cos(DEGREES_TO_RADIANS*(MOTOR_ANGLE_0 + 90 - angle)),

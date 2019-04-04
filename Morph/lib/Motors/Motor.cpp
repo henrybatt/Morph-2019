@@ -1,10 +1,10 @@
-#include <Motor.h>
+#include "Motor.h"
 
 Motor::Motor(int pwm, int inOne, int inTwo, int rev)
 {
     pinMode(pwmPin, OUTPUT);
-    pinMode(dirPin, OUTPUT);
-    pinMode(brkPin, OUTPUT);
+    pinMode(inOnePin, OUTPUT);
+    pinMode(inTwoPin, OUTPUT);
     reversed = rev;
     m_pwm = pwm;
     m_inOne = inOne;

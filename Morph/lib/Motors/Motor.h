@@ -1,6 +1,7 @@
 #ifndef Motor_h
 #define Motor_h
 
+#include <Arduino.h>
 #include <Common.h>
 
 class Motor 

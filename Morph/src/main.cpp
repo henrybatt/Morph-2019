@@ -1,14 +1,26 @@
 #include <Arduino.h>
-#include <LightSensor.h>
-#include <LightSensorController.h>
+#include <tssp.h>
+#include <Timer.h>
 
-LightSensorController lights;
+Tssp tssps;
+
+Timer tsspTimer(833 * TSSP_TIMER_PERIOD_NUMBER);
+
 
 void setup() {
   Serial.begin(9600);
-  lights.setup();
+  Serial.println("Setup"); 
+  tssps.init();
 }
 
 void loop() {
-  lights.update();
+  tssps.updateOnce();
+  // Serial.println("LOOP");
+  if (tsspTimer.timeHasPassed()){
+    tssps.finishRead();
+
+
+    tsspTimer.resetTime();
+  }
+  // Serial.println((uint16_t)tssps.getAngle());
 }

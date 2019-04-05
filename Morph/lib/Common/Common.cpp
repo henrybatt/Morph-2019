@@ -1,5 +1,5 @@
 #include "Common.h"
-#include "math.h"
+// #include "math.h"
 
 
 double toDegrees(double rad){
@@ -37,10 +37,6 @@ double smallestAngleBetween(double angleCounterClockwise, double angleClockwise)
   return fmin(ang, 360 - ang);
 }
 
-double midAngleBetween(double angleCounterClockwise, double angleClockwise){
-  return mod(angleCounterClockwise + angleBetween(angleCounterClockwise, angleClockwise) / 2.0, 360);
-}
-
 double updateMax(double max, double newVal){
   return max > newVal ? max : newVal;
 }
@@ -49,3 +45,31 @@ double updateMax(double max, double newVal){
   return x > y ? x : y;
 }
 */
+
+double midAngleBetween(double angleCounterClockwise, double angleClockwise){
+  return mod(angleCounterClockwise + angleBetween(angleCounterClockwise, angleClockwise) / 2.0, 360);
+}
+
+double distanceBetween(double x1, double x2, double y1, double y2){
+  return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+}
+
+int sign(int value){
+  return value >= 0 ? 1 : -1;
+}
+
+int sign(double value){
+  return value >= 0 ? 1 : -1;
+}
+
+double degreesToRadians(double degrees){
+  return degrees * TO_RADIANS;
+}
+
+double radiansToDegrees(double radians){
+  return radians * TO_DEGREES;
+}
+
+double doubleAbs(double value){
+  return value * sign(value);
+}

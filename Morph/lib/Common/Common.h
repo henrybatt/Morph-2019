@@ -12,6 +12,8 @@
 #define MOTOR_ANGLE_2 225
 #define MOTOR_ANGLE_3 315
 
+#define MOTOR_NUM 4
+
 double toDegrees(double rad);
 double toRadians(double deg);
 

@@ -1,138 +1,146 @@
 # 2019 Morph Camera Code
 
-import sensor, image, time, math
+## ======================= BLOB SCANNER =======================
+import image, sensor, time
 from math import atan2, sqrt, pi, degrees, radians, sin, cos
+
+class Scan():
+
+    def __init__(self):
+        self.ROBOT_1 = 1
+        self.ROBOT_2 = 0
+        self.NO_ANGLE = 400
+        self.debugCount = 0
+        self.DEBUG_COUNT_MAX = 30
+
+
+    def init(self, robot_):
+        self.robot = robot_
+        if self.robot == self.ROBOT_1:
+            self.thresholds = [
+            [(36, 54, 11, 37, -9, 45)],  # Yellow Goal
+            [(39, 61, -37, -15, -42, 2)]] # Blue Goal
+            self.whitebal = (-6.02073, -4.760428, 0.06744033)
+            self.window = (55, 0, 240, 240)
+            self.max_rad = 120
+
+        elif self.robot == self.robot_2:
+            self.thresholds = [
+            (0, 0, 0, 0, 0, 0), # Yellow Goal
+            (0, 0, 0, 0, 0, 0)] # Blue Goal
+            self.whitebal = (0, 0, 0)
+            self.window = (0, 0, 0, 0)
+            self.max_rad = 120
+
+
+        # - Sensor Setup - #
+        sensor.reset()
+        sensor.set_pixformat(sensor.RGB565)
+        sensor.set_framesize(sensor.QVGA)
+        #sensor.set_windowing(self.window)
+        sensor.skip_frames(time=1000)
+
+        # - Balance - #
+        sensor.set_auto_whitebal(False, rgb_gain_db=self.whitebal)
+        sensor.set_brightness(0)
+        sensor.set_contrast(3)
+        sensor.set_saturation(2)
+        curr_exposure = sensor.get_exposure_us()
+        sensor.set_auto_exposure(False, exposure_us=int(curr_exposure*0.5))
+        curr_gain = sensor.get_gain_db()
+        sensor.set_auto_gain(False, gain_db=curr_gain)
+        sensor.set_auto_gain(False, gain_db=15)
+        sensor.skip_frames(time=500)
+
+
+    def whiteBal(self):
+        sensor.set_auto_whitebal(True)
+        self.debugCount += 1
+        if self.debugCount >= self.DEBUG_COUNT_MAX:
+            print(sensor.get_rgb_gain_db())
+            self.debugCount = 0
+
+
+    def screenShot(self, debug=False):
+        self.img = sensor.snapshot()
+        if(debug):
+            self.img.draw_cross(int(self.img.width() / 2), int(self.img.height() / 2))
+            self.img.draw_circle((int(self.img.width() / 2), int(self.img.height() / 2), self.max_rad))
+
+
+    def angleDist(self, object):
+        # Calculates angle and distance towards blob
+        dx = object.cx() - (self.img.width() / 2)
+        dy = object.cy() - (self.img.height() / 2)
+        angle = (450 - degrees(atan2(dy, dx))) % 360
+        distance = (sqrt(dx**2 + dy**2))
+        return (angle, distance)
+
+
+    def sortBlobs(self,blobs, debug=False):
+        # Organises blob data and ensures it is within mirror and biggest
+        if len(blobs) > 0:
+            for blob in sorted(blobs, key=lambda x: x.pixels(), reverse = True):
+                angle, distance = scanner.angleDist(blob)
+                if distance < self.max_rad:
+                    if debug:
+                        self.img.draw_cross(blob.cx(), blob.cy())
+                        self.img.draw_rectangle(blob.rect())
+                        self.img.draw_line(((int(self.img.width() / 2)), int(self.img.height() / 2), blob.cx(), blob.cy()),thickness=2)
+                        print(clock.fps())
+
+                    return (angle, distance)
+        return (self.NO_ANGLE, self.NO_ANGLE)
+
+
+    def findData(self, debug=False):
+        # Find Blobs and calculate Angles and Distances
+        yellowBlob = self.img.find_blobs(self.thresholds[0],x_stride=5, y_stride=5, area_threshold=200, pixel_threshold=200, merge=True, margin=23)
+        blueBlob = self.img.find_blobs(self.thresholds[1],x_stride=5, y_stride=5, area_threshold=200, pixel_threshold=200, merge=True, margin=23)
+        yellowAngle, yellowDist = scanner.sortBlobs(yellowBlob, debug)
+        blueAngle, blueDist = scanner.sortBlobs(blueBlob, debug)
+
+        return ([yellowAngle, yellowDist, blueAngle, blueDist])
+
+
+
+
+## ======================= SEND DATA =======================
 from pyb import UART, LED
 
-# --- Stuff to Change --- #
+class Sender():
 
-ROBOT = "A"
+    def __init__(self, bus=3, baud=9600, tout_c=10):
+        self.uart = UART(bus, baud, timeout_char=tout_c)
 
-DEBUG_WHITEBALANCE = False
-DEBUG_BLOBS = True
+    def sendData(self, data, debug=False):
+        self.uart.writechar(255)
+        data = [round(x) for x in data]
 
-
-# -+- Robot A -+- #
-
-BLUE_GOAL_A = [(39, 61, -37, -15, -42, 2)]
-YELLOW_GOAL_A = [(68, 91, -5, 37, 21, 127)]
-
-WHITE_BAL_A = (-6.02073, -6.02073, -1.638652)
-
-VWIN_A = (55, 0, 240, 240)
-CENTRE_X_A = 120
-CENTRE_Y_A = 120
-MAX_RADIUS_A = 180
-
-# -+- Robot B -+- #
-
-BLUE_GOAL_B = [(42, 56, -45, -6, -51, -18)]
-YELLOW_GOAL_B = [(58, 84, -8, 59, 29, 77)]
-
-WHITE_BAL_B = (-6.02073, -2.868481, 5.986629)
-
-VWIN_B = (58, 0, 174, 164)
-CENTRE_X_B = 88
-CENTRE_Y_B = 85
-MAX_RADIUS_B = 88
-
-# -------------- #
-
-exec("VWIN = VWIN_" + ROBOT)
-exec("CENTRE_X = CENTRE_X_" + ROBOT)
-exec("CENTRE_Y = CENTRE_Y_" + ROBOT)
-exec("MAX_RADIUS = MAX_RADIUS_" + ROBOT)
-exec("WHITE_BAL = WHITE_BAL_" + ROBOT)
-exec("BLUE_GOAL = BLUE_GOAL_" + ROBOT)
-exec("YELLOW_GOAL = YELLOW_GOAL_" + ROBOT)
-
-debugCount = 0
-DEBUG_COUNT_MAX = 30
-
-# No blob angle
-NO_ANGLE = 0
-
-# - Sensor Setup -#
-sensor.reset()
-
-sensor.set_pixformat(sensor.RGB565)
-sensor.set_framesize(sensor.QVGA)
-sensor.set_windowing(VWIN)
-sensor.skip_frames(time=100)
-
-# - White Balance - #
-
-if DEBUG_WHITEBALANCE:
-    sensor.set_auto_whitebal(True)
-else:
-    sensor.set_auto_whitebal(False, rgb_gain_db=WHITE_BAL)
-
-    sensor.set_brightness(0)
-    sensor.set_contrast(3)
-    sensor.set_saturation(2)
-    sensor.set_auto_exposure(False, exposure_us=10000)
-    sensor.set_auto_gain(False, gain_db=15)
-    sensor.skip_frames(time=500)
+        if debug:
+            print(data)
+        for i in data:
+            self.uart.writechar(i)
 
 
-uart = UART(3, 115200, timeout_char=10)
-
-def send(data):
-    # Sends data with starting character of 255
-    uart.writechar(255)
-    if DEBUG_BLOBS:
-        print(data)
-    for i in data:
-        i = round(i)
-        uart.writechar(i)
 
 
-def angleDist(object, img):
-    # Calculates angle and distance towards blob
-    dx = object.cx() - CENTRE_X
-    dy = object.cy() - CENTRE_Y
+## ======================= MAIN =======================
+clock = time.clock()
 
-    angle = (450 - degrees(atan2(dy, dx))) % 360
-    distance = (sqrt(dx**2 + dy**2))
-    return (angle, distance)
+scanner = Scan()
+sender = Sender()
 
-def sortBlobs(blobs, img):
-    # Organises blob data and ensures it is within mirror and biggest
-    if len(blobs) > 0:
-        for blob in sorted(blobs, key=lambda x: x.pixels(), reverse = True):
-            angle, distance = angleDist(blob, img)
-            if distance < MAX_RADIUS:
-                if DEBUG_BLOBS:
-                    img.draw_cross(blob.cx(), blob.cy())
-                    img.draw_rectangle(blob.rect())
-                    img.draw_line((CENTRE_X, CENTRE_Y, blob.cx(), blob.cy()),thickness=2)
+from pyb import LED
+#LED(3).on()
 
-                return (angle, distance)
-    return (NO_ANGLE, NO_ANGLE)
-
-def findData(blueThreshold,yellowThreshold):
-    # Find Blobs and calculate Angles and Distances
-    img = sensor.snapshot()
-
-    blueBlob = img.find_blobs(blueThreshold,x_stride=5, y_stride=5, area_threshold=200, pixel_threshold=200, merge=True, margin=23)
-    yellowBlob = img.find_blobs(yellowThreshold,x_stride=5, y_stride=5, area_threshold=200, pixel_threshold=200, merge=True, margin=23)
-
-    yellowAngle, yellowDist = sortBlobs(yellowBlob, img)
-    blueAngle, blueDist = sortBlobs(blueBlob, img)
-
-    return ([yellowAngle, yellowDist, blueAngle, blueDist])
-
+scanner.init(scanner.ROBOT_1)
 
 
 while True:
-    if DEBUG_WHITEBALANCE:
-        # Print white balance values
-        debugCount += 1
-        if debugCount >= DEBUG_COUNT_MAX:
-            print(sensor.get_rgb_gain_db())
-            debugCount = 0
-
-    else:
-        # Find Blob data and send
-        data = findData(BLUE_GOAL,YELLOW_GOAL)
-        send(data)
+    #clock.tick()
+    #scanner.whiteBal()
+    scanner.screenShot(True) #Display Radius & Cross
+    data = scanner.findData(True) #Draw lines and boxs around blobs
+    sender.sendData(data, True) #Print angle and distance
+    LED(3).toggle()

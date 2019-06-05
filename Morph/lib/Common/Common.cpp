@@ -10,9 +10,9 @@ double toRadians(double deg){
   return deg*TO_RADIANS;
 }
 
-int mod(int n, int modulo){
-  int r = n % modulo;
-  return r < 0 ? r + modulo : r;
+int mod(int x, int m){
+  int r = x % m;
+  return r < 0 ? r + m : r;
 }
 
 double doubleMod(double value, double maxValue) {
@@ -45,6 +45,10 @@ double updateMax(double max, double newVal){
   return x > y ? x : y;
 }
 */
+
+int findSign(double value) {
+	return value >= 0 ? 1 : -1;
+}
 
 double midAngleBetween(double angleCounterClockwise, double angleClockwise){
   return mod(angleCounterClockwise + angleBetween(angleCounterClockwise, angleClockwise) / 2.0, 360);

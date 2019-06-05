@@ -6,24 +6,32 @@ void Tssp::init(){
         pinMode(tsspPins[i], INPUT);
     }
     double temp_angle;
+
     for (int i = 0; i < TSSP_NUM; i++){
-        temp_angle = degreesToRadians(i * TSSP_NUM_MULTIPLIER);
+        temp_angle = degreesToRadians(i * (360/TSSP_NUM));
 
         scaledCos[i] = cos(temp_angle);
         scaledSin[i] = sin(temp_angle);
     }
 }
 
+void Tssp::read(){
+    updateOnce();
+    finishRead();
+}
+
 void Tssp::updateOnce(){
-for (int i = 0; i < TSSP_NUM; i++){
-    tempValues[i] += 1 - digitalReadFast(tsspPins[i]);
+    for (int i = 0; i < TSSP_NUM; i++){
+        tempValues[i] += 1 - digitalReadFast(tsspPins[i]);
+        // tempValues[i] += digitalRead(tsspPins[i]) ^ 1;
     }
     tsspCounter++;
 }
 
+
 void Tssp::finishRead(){
     for (int i = 0; i < TSSP_NUM; i++){
-        values[i] = 100 * (double)tempValues[i] / (double)tsspCounter;
+        values[i] = 100 * tempValues[i] / 255;
         tempValues[i] = 0;
         sortedValues[i] = 0;
         indexes[i] = 0;
@@ -40,12 +48,12 @@ void Tssp::finishRead(){
     tsspCounter = 0;
 
     sortValues();
-    calculateAngleStrength(TSSP_BEST_TSSP_NUMBER);
+    calculateAngleStrength(4);
 }
 
 void Tssp::sortValues(){
-    for (uint8_t i = 0; i < TSSP_NUM; i++){
-        for (uint8_t j = 0; j < TSSP_NUM; j++){
+    for (int i = 0; i < TSSP_NUM; i++){
+        for (int j = 0; j < TSSP_NUM; j++){
             if (values[i] > sortedValues[j]){
                 if (j <= i){
                     ARRAYSHIFTDOWN(sortedValues, j, i);
@@ -64,19 +72,13 @@ void Tssp::calculateAngleStrength(uint8_t n){
     int16_t y = 0;
 
     for (uint8_t i = 0; i < n; i++){
-        x += sortedValues[i] * scaledCos[indexes[i]];
-        y += sortedValues[i] * scaledSin[indexes[i]];
-    }
-
-    if (x == 0 && y == 0){
-        angle = TSSP_NO_BALL;
-    }
-    else{
-        Serial.println(atan2(y, x));
-        angle = mod(radiansToDegrees(atan2(y, x)), 360);
+        x += sortedValues[i] * cos(degreesToRadians(indexes[i] * 20));
+        y += sortedValues[i] * sin(degreesToRadians(indexes[i] * 20));
     }
 
     strength = sqrt(x * x + y * y);
+    ballVisible = (strength != 0);
+    angle = ballVisible ? doubleMod(radiansToDegrees(atan2(y, x)) - 90, 360) : TSSP_NO_BALL;
 }
 
 uint16_t Tssp::getAngle(){

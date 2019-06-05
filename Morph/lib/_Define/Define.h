@@ -6,66 +6,63 @@
 
 #define ROBOT 1
 
+#define MAX_SPEED 230
 
+// --- Camera --- //
 
-// LIGHT SENSORS
-#define LS_NUM 16
+#define cameraSerial Serial4
+#define CAM_BUFFER_NUM 5
+#define CAM_START_NUM 255
+
+// --- Light Sensors --- //
+#define LS_NUM 32
 #define LS_CALIBRATE_COUNT 10
 #define LS_DEFAULT_THRESHOLD 200
 #define LS_BUFFER 200
-#define LS_INTERVAL_ANGLE 22.5
+#define LS_INTERVAL_ANGLE 11.25
+#define LS_RADIUS 54
+#define LS_AVOID_SIZE 1
 
+#define LS_NUM 32
+#define LS_NUM_MULTIPLIER 11.25
 
-// Testing Light Pins from M&A Black Robot
-const int brokenPins[] = {};
-const int lightPins[LS_NUM] = {A7, A6, A10, A11, A12, A13, A3, A2, A1, A0, A22, A21, A24, A23, A9,A8};
-const int lightThresh[LS_NUM] = {842, 905, 919, 930, 937, 906, 14, 885, 907, 911, 905, 895, 824, 853, 841, 825};
+#define LS_CALIBRATION_COUNT 50
+#define LS_CALIBRATION_BUFFER 60
+#define LS_ES_DEFAULT 100
+#define NO_LINE_ANGLE 400
+#define NO_LINE_SIZE 3
+#define LINE_CORNER_ANGLE_THRESHOLD 30
+#define LINE_ANGLE_BUFFER -10
+#define LINE_ANGLE_BUFFER_CORNER -10
+#define LINE_SMALL_SIZE 0.2
+#define LINE_BIG_SIZE 0.5
+#define LINE_SPEED 20
+#define OVER_LINE_SPEED 60
 
 // --- IR Sensors --- //
-
-// Number of periods in a sensor read
-#define TSSP_TIMER_PERIOD_NUMBER 4
-
 #define TSSP_NUM 18
-#define TSSP_NUM_MULTIPLIER 20 // 360 / TSSP_NUM
-
-// Number of strongest sensors used to calculate angle and strength
-#define TSSP_BEST_TSSP_NUMBER 5
-
-// Angle if there is no ball
 #define TSSP_NO_BALL 400
 
-// IR Pins
-// #define TSSP_PIN_0 0
-// #define TSSP_PIN_1 1
-// #define TSSP_PIN_2 2
-// #define TSSP_PIN_3 3
-// #define TSSP_PIN_4 4
-// #define TSSP_PIN_5 5
-// #define TSSP_PIN_6 6
-// #define TSSP_PIN_7 7
-// #define TSSP_PIN_8 8
-// #define TSSP_PIN_9 9
-// #define TSSP_PIN_10 19
-// #define TSSP_PIN_11 20
-// #define TSSP_PIN_12 21
-// #define TSSP_PIN_13 22
-// #define TSSP_PIN_14 23
-// #define TSSP_PIN_15 24
-// #define TSSP_PIN_16 25
-// #define TSSP_PIN_17 26
+// --- Movement --- //
+#define MOVEMENT_ANGLE_OFFSET 0
+#define MOVEMENT_ROTATION_OFFSET 0
+#define TOTAL_BRAKE_TIME 100
 
-#define TSOP_PIN_0 54
-#define TSOP_PIN_1 55
-#define TSOP_PIN_2 56
-#define TSOP_PIN_3 52
-#define TSOP_PIN_4 51
-#define TSOP_PIN_5 42
-#define TSOP_PIN_6 43
-#define TSOP_PIN_7 44
-#define TSOP_PIN_8 57
-#define TSOP_PIN_9 53
-#define TSOP_PIN_10 41
-#define TSOP_PIN_11 40
+// --- IMU Sensor --- //
+#define IMU_CALIBRATION_COUNT 20
+#define IMU_CALIBRATION_TIME 50
+
+#define MPU9250_ADDRESS 0x68
+#define MAG_ADDRESS 0x0C
+
+#define GYRO_FULL_SCALE_250_DPS 0x00
+#define GYRO_FULL_SCALE_500_DPS 0x08
+#define GYRO_FULL_SCALE_1000_DPS 0x10
+#define GYRO_FULL_SCALE_2000_DPS 0x18
+
+#define ACC_FULL_SCALE_2_G 0x00
+#define ACC_FULL_SCALE_4_G 0x08
+#define ACC_FULL_SCALE_8_G 0x10
+#define ACC_FULL_SCALE_16_G 0x18
 
 #endif

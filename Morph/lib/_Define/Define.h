@@ -3,16 +3,17 @@
 
 #include <Arduino.h>
 
-
 #define ROBOT 1
-
-#define MAX_SPEED 230
+#define ATTACK_GOAL_YELLOW true //true = Yellow, false = Blue
+#define GOAL_TRACK true
 
 // --- Camera --- //
 
 #define cameraSerial Serial4
-#define CAM_BUFFER_NUM 5
+#define CAM_BUFFER_NUM 7
 #define CAM_START_NUM 255
+#define CAM_IMAGE_WIDTH 240
+#define CAM_NO_DATA 250
 
 // --- Light Sensors --- //
 #define LS_NUM 32
@@ -36,8 +37,48 @@
 #define LINE_ANGLE_BUFFER_CORNER -10
 #define LINE_SMALL_SIZE 0.2
 #define LINE_BIG_SIZE 0.5
-#define LINE_SPEED 20
-#define OVER_LINE_SPEED 60
+
+#define MOTOR_NUM 4
+#define ORBIT_FAST_SPEED 100
+#define ORBIT_SLOW_SPEED 50
+#define LINE_SPEED_FAST 100
+#define LINE_SPEED_SLOW 50
+
+
+// #define LS_NUM 36
+// #define LS_NUM_MULTIPLIER 10 // = 360 / LS_NUM
+
+// // Number of times to read light sensors for calibration
+// #define LS_CALIBRATION_COUNT 50
+
+// // Amount to add onto calibration value
+// #define LS_CALIBRATION_BUFFER 60
+
+// // Default value for cluster end-start array
+// #define LS_ES_DEFAULT 100
+
+// // Angle and size values if no line is seen
+// #define NO_LINE_ANGLE 400
+// #define NO_LINE_SIZE 3
+
+// // If an angle mod 90 is within value and 90 - value, then it is considered a corner
+// #define LINE_CORNER_ANGLE_THRESHOLD 30
+
+// // If an angle is within value of the line angle, it is outside the line. A value for corner and not corner
+// #define LINE_ANGLE_BUFFER -10
+// #define LINE_ANGLE_BUFFER_CORNER -10
+
+// // < small size, robot will ignore line. < big size, > small size, robot will sit on the line.
+// // > big size and the robot will go back in
+// #define LINE_SMALL_SIZE 0.2
+// #define LINE_BIG_SIZE 0.5
+
+// // Speeds for slow and fast line avoidance (depending on line size from big size to 2)
+// #define LINE_SPEED 20
+// #define OVER_LINE_SPEED 60
+
+// // Enable / disable line avoidance
+// #define AVOID_LINE true
 
 // --- IR Sensors --- //
 #define TSSP_NUM 18

@@ -8,138 +8,54 @@
 
 
 // --- Light Sensors --- //
-// #define LS_0 A7
-// #define LS_1 A6
-// #define LS_2 A10
-// #define LS_3 A11
-// #define LS_4 A12
-// #define LS_5 A13
-// #define LS_6 A3
-// #define LS_7 A2
-// #define LS_8 A1
-// #define LS_9 A0
-// #define LS_10 A22
-// #define LS_11 A21
-// #define LS_12 A24
-// #define LS_13 A23
-// #define LS_14 A9
-// #define LS_15 A8
-// #define LS_16 A7
-// #define LS_17 A6
-// #define LS_18 A10
-// #define LS_19 A11
-// #define LS_20 A12
-// #define LS_21 A13
-// #define LS_22 A3
-// #define LS_23 A2
-// #define LS_24 A1
-// #define LS_25 A0
-// #define LS_26 A22
-// #define LS_27 A21
-// #define LS_28 A24
-// #define LS_29 A23
-// #define LS_30 A9
-// #define LS_31 A8
+
+#define MUX_OUT_1 A11
+#define MUX_A0 50
+#define MUX_A1 51
+#define MUX_A2 52
+#define MUX_A3 53
+
+#define MUX_OUT_2 A10
+#define MUX_A4 54 
+#define MUX_A5 55
+#define MUX_A6 56
+#define MUX_A7 57
 
 
-// #define LS_0 A7
-// #define LS_1 A6
-// #define LS_2 A5
-// #define LS_3 A4
-// #define LS_4 A3
-// #define LS_5 A2
-// #define LS_6 A1
-// #define LS_7 A0
-// #define LS_8 A8
-// #define LS_9 A9
-// #define LS_10 A10
-// #define LS_11 A11
-// #define LS_12 A12
-// #define LS_13 A13
-// #define LS_14 A14
-// #define LS_15 A15
-// #define LS_16 A7
-// #define LS_17 A6
-// #define LS_18 A5
-// #define LS_19 A4
-// #define LS_20 A3
-// #define LS_21 A2
-// #define LS_22 A1
-// #define LS_23 A0
-// #define LS_24 A8
-// #define LS_25 A9
-// #define LS_26 A10
-// #define LS_27 A11
-// #define LS_28 A12
-// #define LS_29 A13
-// #define LS_30 A14
-// #define LS_31 A15
+#define LS_1 7
+#define LS_2 6
+#define LS_3 5
+#define LS_4 4
+#define LS_5 3
+#define LS_6 2
+#define LS_7 1
+#define LS_8 0
+#define LS_9 8
+#define LS_10 9
+#define LS_11 10
+#define LS_12 11
+#define LS_13 12
+#define LS_14 13
+#define LS_15 14
+#define LS_16 15
 
-// #define LS_1 A2
-// #define LS_2 A3
-// #define LS_3 A4
-// #define LS_4 A5
-// #define LS_5 A6
-// #define LS_6 A7
-// #define LS_7 A8
-// #define LS_8 A9
-// #define LS_9 A23
-// #define LS_10 A22
-// #define LS_11 A21
-// #define LS_12 A20
-// #define LS_13 A19
-// #define LS_14 A18
-// #define LS_15 A17
-// #define LS_16 A16
-// #define LS_17 A2
-// #define LS_18 A3
-// #define LS_19 A4
-// #define LS_20 A5
-// #define LS_21 A6
-// #define LS_22 A7
-// #define LS_23 A8
-// #define LS_24 A9
-// #define LS_25 A23
-// #define LS_26 A22
-// #define LS_27 A21
-// #define LS_28 A20
-// #define LS_29 A19
-// #define LS_30 A18
-// #define LS_31 A17
-// #define LS_32 A16
+#define LS_17 14//7
+#define LS_18 6
+#define LS_19 10//5
+#define LS_20 2//4
+#define LS_21 12//3
+#define LS_22 4//2
+#define LS_23 8//1
+#define LS_24 0
+#define LS_25 1//8
+#define LS_26 9
+#define LS_27 5//10
+#define LS_28 13//11
+#define LS_29 3//12
+#define LS_30 11//13
+#define LS_31 7//14
+#define LS_32 15
 
-#define LS_1 A10
-#define LS_2 A11
-#define LS_3 A13
-#define LS_4 A14
-#define LS_5 A1
-#define LS_6 A1
-#define LS_7 A10
-#define LS_8 A1
-#define LS_9 A1
-#define LS_10 A1
-#define LS_11 A1
-#define LS_12 A1
-#define LS_13 A1
-#define LS_14 A1
-#define LS_15 A1
-#define LS_16 A1
-#define LS_17 A1
-#define LS_18 A1
-#define LS_19 A1
-#define LS_20 A1
-#define LS_21 A1
-#define LS_22 A1
-#define LS_23 A1
-#define LS_24 A1
-#define LS_25 A1
-#define LS_26 A1
-#define LS_27 A1
-#define LS_28 A1
-#define LS_29 A1
-#define LS_30 A1
-#define LS_31 A1
-#define LS_32 A1
 
 // --- IR Sensors --- //
 #define TSSP_PIN_1 24

@@ -18,15 +18,15 @@ void LightSensor::init(int in){
     threshold = round((int)((double)defaultValue / LS_CALIBRATION_COUNT) + LS_CALIBRATION_BUFFER);
 }
 
-int LightSensor::read(){
-    readVal = analogRead(inPin);
-}
 
-bool LightSensor::onWhite(){
-    read();
+bool LightSensor::onWhite(int readVal){
     return (readVal > threshold);
 }
 
 int LightSensor::getValue(){
     return readVal;
+}
+
+void LightSensor::setThresh(int thresh){
+	threshold = thresh;
 }

@@ -54,7 +54,18 @@ struct Vector3D {
 struct DirSpeed {
     double direction;
     double speed;
+    double correction;
 };
+
+struct LineInfo {
+    double angle;
+    double size;
+    bool onField;
+
+    LineInfo(double a, double s, bool o) : angle(a), size(s), onField(o) {}
+};
+
+
 
 #define TSSP_MAX_IGNORE 256
 #define TSSP_MIN_IGNORE 0
@@ -100,34 +111,35 @@ struct DirSpeed {
 #define TSSP_Y_16 0.766044
 #define TSSP_Y_17 0.93963
 
-#define MOTOR_NUM 4
-#define ORBIT_FAST_SPEED 100
-#define ORBIT_SLOW_SPEED 50
-#define AVOID_FAST_SPEED 100
-#define AVOID_SLOW_SPEED 50
 
 #define IDLE_HEADING_KP 1
 #define IDLE_HEADING_KI 0
 #define IDLE_HEADING_KD 0.05
 #define IDLE_HEADING_MAX_CORRECTION 255
+
 #define HEADING_KP 2
 #define HEADING_KI 0
 #define HEADING_KD 0.1
 #define HEADING_MAX_CORRECTION 255
-#define GOAL_TRACK_KP 1
-#define GOAL_TRACK_KI 0
-#define GOAL_TRACK_KD 0.05
+
 #define DEFEND_SIDEWAYS_KP -4
 #define DEFEND_SIDEWAYS_KI 0
 #define DEFEND_SIDEWAYS_KD 0
 #define DEFEND_SIDEWAYS_MAX_SPEED 200
+
 #define CENTRE_DISTANCE_KP 0.5
 #define CENTRE_DISTANCE_KI 0
 #define CENTRE_DISTANCE_KD 0.1
 #define CENTRE_DISTANCE_MAX_SPEED 180
+
 #define CENTRE_SIDEWAYS_KP 0.5
 #define CENTRE_SIDEWAYS_KI 0
 #define CENTRE_SIDEWAYS_KD 0.1
 #define CENTRE_SIDEWAYS_MAX_SPEED 180
+
+#define GOAL_TRACK_KP 0.6
+#define GOAL_TRACK_KI 0
+#define GOAL_TRACK_KD 0.01
+#define GOAL_TRACK_MAX_CORRECTION 30
 
 #endif

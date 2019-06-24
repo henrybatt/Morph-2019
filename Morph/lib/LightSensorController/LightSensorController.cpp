@@ -13,20 +13,33 @@ void LightSensorController::init(){
             Serial.println("] is on");
         #endif
     }
+
+    // pinMode(MUX_OUT_1, OUTPUT);
+    // pinMode(LS0, OUTPUT);
+    // pinMode(LS1, OUTPUT);
+    // pinMode(LS2, OUTPUT);
+    // pinMode(LS3, OUTPUT);
+
+    // digitalWriteFast(LS0, LOW);
+    // digitalWriteFast(LS1, LOW);
+    // digitalWriteFast(LS2, LOW);
+    // digitalWriteFast(LS3, LOW);
 }
 
 void LightSensorController::read(){
     for (int i = 0; i < LS_NUM; i++){
         onWhite[i] = lightArray[i].onWhite();
         lightArray[i].read();
+        // digitalWriteFast(LS0, 12 & 0x1);
         // Serial.print(2);
         // Serial.print(" , ");
         // Serial.println(lightArray[2].getValue());
         // Serial.println(analogRead(A10));
-        digitalWriteFast(A10, LOW);
-
-        digitalWriteFast(A10, 1 & 0x1);
-        digitalWriteFast(A10, HIGH);
+        // LS = analogRead(LS0);
+        // Serial.println(LS);
+        // digitalWriteFast(A10, LOW);
+        // digitalWriteFast(A10, 1 & 0x1);
+        // digitalWriteFast(A10, HIGH);
         // Serial.print(analogRead(A10));
         // Serial.print(" , ");
         // Serial.println(analogRead(A11));

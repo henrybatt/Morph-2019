@@ -16,13 +16,15 @@ void Tssp::init(){
 }
 
 void Tssp::read(){
-    updateOnce();
+    for (int i = 0; i < 255; i++){
+        updateOnce();
+    }
     finishRead();
 }
 
 void Tssp::updateOnce(){
     for (int i = 0; i < TSSP_NUM; i++){
-        tempValues[i] += 1 - digitalReadFast(tsspPins[i]);
+        tempValues[i] += 1 - digitalRead(tsspPins[i]);
         // tempValues[i] += digitalRead(tsspPins[i]) ^ 1;
     }
     tsspCounter++;
@@ -71,14 +73,14 @@ void Tssp::calculateAngleStrength(uint8_t n){
     int16_t x = 0;
     int16_t y = 0;
 
-    for (uint8_t i = 0; i < n; i++){
+    for (int i = 0; i < n; i++){
         x += sortedValues[i] * cos(degreesToRadians(indexes[i] * 20));
         y += sortedValues[i] * sin(degreesToRadians(indexes[i] * 20));
     }
 
     strength = sqrt(x * x + y * y);
     ballVisible = (strength != 0);
-    angle = ballVisible ? doubleMod(radiansToDegrees(atan2(y, x)) - 90, 360) : TSSP_NO_BALL;
+    angle = ballVisible ? doubleMod(radiansToDegrees(atan2(y, x)), 360) : TSSP_NO_BALL;
 }
 
 uint16_t Tssp::getAngle(){

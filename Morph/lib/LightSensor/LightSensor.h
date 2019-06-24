@@ -12,8 +12,9 @@ class LightSensor {
         void init(int in);
 
         int read();
-        bool onWhite();
+        bool onWhite(int readVal);
         int getValue();
+        void setThresh(int thresh);
     private:
         int threshold,inPin,readVal;
 };

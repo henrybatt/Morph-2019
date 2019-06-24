@@ -3,7 +3,7 @@
 #include <Pins.h>
 #include <MotorController.h>
 
-void MotorController::Setup(){
+void MotorController::init(){
     motorFrontLeft.Setup(MOTOR_FRONT_LEFT_ENA,MOTOR_FRONT_LEFT_IN1,MOTOR_FRONT_LEFT_IN2,MOTOR_FRONT_LEFT_REVERSED);
     motorBackLeft.Setup(MOTOR_BACK_LEFT_ENA,MOTOR_BACK_LEFT_IN1,MOTOR_BACK_LEFT_IN2,MOTOR_BACK_LEFT_REVERSED);
     motorBackRight.Setup(MOTOR_BACK_RIGHT_ENA,MOTOR_BACK_RIGHT_IN1,MOTOR_BACK_RIGHT_IN2,MOTOR_BACK_RIGHT_REVERSED);
@@ -20,6 +20,10 @@ void MotorController::Move(int angle, int rotation, int speed){
         cos(degreesToRadians(135+90)-angRad),
         cos(degreesToRadians(-45+90)-angRad),
         cos(degreesToRadians(-135+90)-angRad)
+
+        // cos(degreesToRadians(300+90-angRad)),
+        // cos(degreesToRadians(180+90 - angRad)),
+        // cos(degreesToRadians(60+90 - angRad))
     };
 
 

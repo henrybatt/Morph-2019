@@ -37,6 +37,14 @@ double smallestAngleBetween(double angleCounterClockwise, double angleClockwise)
   return fmin(ang, 360 - ang);
 }
 
+bool angleIsInside(double angleBoundCounterClockwise, double angleBoundClockwise, double angleCheck) {
+    if (angleBoundCounterClockwise < angleBoundClockwise) {
+        return (angleBoundCounterClockwise < angleCheck && angleCheck < angleBoundClockwise);
+    } else {
+        return (angleBoundCounterClockwise < angleCheck || angleCheck < angleBoundClockwise);
+    }
+}
+
 double updateMax(double max, double newVal){
   return max > newVal ? max : newVal;
 }

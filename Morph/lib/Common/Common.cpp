@@ -1,5 +1,5 @@
 #include "Common.h"
-#include "math.h"
+// #include "math.h"
 
 
 double toDegrees(double rad){
@@ -10,9 +10,9 @@ double toRadians(double deg){
   return deg*TO_RADIANS;
 }
 
-int mod(int n, int modulo){
-  int r = n % modulo;
-  return r < 0 ? r + modulo : r;
+int mod(int x, int m){
+  int r = x % m;
+  return r < 0 ? r + m : r;
 }
 
 double doubleMod(double value, double maxValue) {
@@ -37,8 +37,12 @@ double smallestAngleBetween(double angleCounterClockwise, double angleClockwise)
   return fmin(ang, 360 - ang);
 }
 
-double midAngleBetween(double angleCounterClockwise, double angleClockwise){
-  return mod(angleCounterClockwise + angleBetween(angleCounterClockwise, angleClockwise) / 2.0, 360);
+bool angleIsInside(double angleBoundCounterClockwise, double angleBoundClockwise, double angleCheck) {
+    if (angleBoundCounterClockwise < angleBoundClockwise) {
+        return (angleBoundCounterClockwise < angleCheck && angleCheck < angleBoundClockwise);
+    } else {
+        return (angleBoundCounterClockwise < angleCheck || angleCheck < angleBoundClockwise);
+    }
 }
 
 double updateMax(double max, double newVal){
@@ -49,3 +53,35 @@ double updateMax(double max, double newVal){
   return x > y ? x : y;
 }
 */
+
+int findSign(double value) {
+	return value >= 0 ? 1 : -1;
+}
+
+double midAngleBetween(double angleCounterClockwise, double angleClockwise){
+  return mod(angleCounterClockwise + angleBetween(angleCounterClockwise, angleClockwise) / 2.0, 360);
+}
+
+double distanceBetween(double x1, double x2, double y1, double y2){
+  return sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+}
+
+int sign(int value){
+  return value >= 0 ? 1 : -1;
+}
+
+int sign(double value){
+  return value >= 0 ? 1 : -1;
+}
+
+double degreesToRadians(double degrees){
+  return degrees * TO_RADIANS;
+}
+
+double radiansToDegrees(double radians){
+  return radians * TO_DEGREES;
+}
+
+double doubleAbs(double value){
+  return value * sign(value);
+}

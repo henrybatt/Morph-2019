@@ -106,4 +106,12 @@
 #define ACC_FULL_SCALE_8_G 0x10
 #define ACC_FULL_SCALE_16_G 0x18
 
+// Motor
+#define MOTOR_ANGLE_0 45
+#define MOTOR_ANGLE_1 135
+#define MOTOR_ANGLE_2 225
+#define MOTOR_ANGLE_3 315
+
+
+
 #endif

@@ -37,13 +37,17 @@ void Camera::read(){
 }
 
 
-void Camera::calc() {
+void Camera::calc(int heading) {
+    read();
     // Calculates goal angle and length 
     yellow.angle = mod(450 - round(degrees(atan2(yellow.y, yellow.x))), 360);
     yellow.length = (sqrt(pow(yellow.x, 2) + pow(yellow.y, 2)));
 
     blue.angle = mod(450 - round(degrees(atan2(blue.y, blue.x))), 360);
     blue.length = (sqrt(pow(blue.x, 2) + pow(blue.y, 2)));
+
+    attackAngle = ATTACK_GOAL_YELLOW ? mod(yellow.angle + heading, 360) : mod(blue.angle + heading, 360);
+    defendAngle = ATTACK_GOAL_YELLOW ? mod(blue.angle + heading, 360) : mod(yellow.angle + heading, 360);
 
 #if DEBUG_CAMERA
         Serial.print("Yellow Angle: ");
@@ -57,6 +61,7 @@ void Camera::calc() {
     #endif
 }
 
+
 bool Camera::attackVisible(){
     return ATTACK_GOAL_YELLOW ? yellow.exist : blue.exist;
 }
@@ -68,3 +73,4 @@ bool Camera::defendVisible(){
 bool Camera::goalVisible(){
     return attackVisible() || defendVisible();
 }
+

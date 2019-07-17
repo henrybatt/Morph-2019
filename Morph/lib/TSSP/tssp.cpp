@@ -5,14 +5,6 @@ void Tssp::init(){
     for (int i = 0; i < TSSP_NUM; i++){
         pinMode(tsspPins[i], INPUT);
     }
-    double temp_angle;
-
-    for (int i = 0; i < TSSP_NUM; i++){
-        temp_angle = degreesToRadians(i * (360/TSSP_NUM));
-
-        scaledCos[i] = cos(temp_angle);
-        scaledSin[i] = sin(temp_angle);
-    }
 }
 
 void Tssp::read(){
@@ -25,7 +17,6 @@ void Tssp::read(){
 void Tssp::updateOnce(){
     for (int i = 0; i < TSSP_NUM; i++){
         tempValues[i] += 1 - digitalRead(tsspPins[i]);
-        // tempValues[i] += digitalRead(tsspPins[i]) ^ 1;
     }
     tsspCounter++;
 }

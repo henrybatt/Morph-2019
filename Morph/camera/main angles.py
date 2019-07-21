@@ -18,9 +18,9 @@ class Scan():
         self.robot = robot_
         if self.robot == self.ROBOT_1:
             self.thresholds = [
-            [(34, 71, 34, 94, 20, 92)],  # Yellow Goal
+            [(1, 37, -31, 56, 9, 37)],  # Yellow Goal
             [(39, 61, -37, -15, -42, 2)]] # Blue Goal
-            self.whitebal = (-6.02073, -4.760428, 0.06744033)
+            self.whitebal = (-6.02073, -3.15645, 1.43468)
             self.window = (55, 0, 240, 240)
             self.max_rad = 120
 
@@ -145,7 +145,7 @@ scanner.init(scanner.ROBOT_1)
 while True:
     #clock.tick()
     #scanner.whiteBal()
-    scanner.screenShot(False) #Display Radius & Cross
+    scanner.screenShot(True) #Display Radius & Cross
     data = scanner.findData(True) #Draw lines and boxs around blobs
     sender.sendData(data, True) #Print angle and distance
     LED(3).toggle()

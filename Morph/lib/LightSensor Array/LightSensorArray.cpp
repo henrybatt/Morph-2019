@@ -62,6 +62,15 @@ void LightSensorArray::read() {
         data[i] = readSensor(i) > thresholds[i];
     }
 
+    #if DEBUG_LIGHT
+        for(int i =0; i < LS)NUM; i++){
+            Serial.print(data[i]);
+            Serial.print(" ");
+        }
+        Serial.println();
+    #endif
+
+    
 
     calculateClusters();
     calculateLine();

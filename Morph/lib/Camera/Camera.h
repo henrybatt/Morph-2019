@@ -26,7 +26,11 @@ class Camera{
         bool defendVisible();
         bool goalVisible();
 
+        void goalTrack();
+
         int attackAngle , defendAngle;
+
+        bool facingGoal;
 
     private:
         int currentin;

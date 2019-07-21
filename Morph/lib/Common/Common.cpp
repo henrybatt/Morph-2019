@@ -45,6 +45,16 @@ bool angleIsInside(double angleBoundCounterClockwise, double angleBoundClockwise
     }
 }
 
+double angleMap(double angle, double max) {
+	while(angle >= max) {
+		angle -= 360;
+	}
+	while(angle < (max-360)) {
+		angle += 360;
+	}
+	return angle;
+}
+
 double updateMax(double max, double newVal){
   return max > newVal ? max : newVal;
 }

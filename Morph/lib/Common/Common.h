@@ -34,6 +34,7 @@ double doubleAbs(double value);
 
 double distanceBetween(double x1, double y1, double x2, double y2);
 double updateMax(double max, double newVal);
+double angleMap(double angle, double max);
 
 #define ARRAYSHIFTDOWN(a, lower, upper){          \
     if (upper == (sizeof(a)/sizeof(a[0])) - 1){   \
@@ -119,7 +120,7 @@ struct LineInfo {
 
 #define HEADING_KP 2
 #define HEADING_KI 0
-#define HEADING_KD 0.1
+#define HEADING_KD 0.2
 #define HEADING_MAX_CORRECTION 255
 
 #define DEFEND_SIDEWAYS_KP -4

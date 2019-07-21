@@ -3,9 +3,9 @@
 
 #include <Arduino.h>
 
-#define ROBOT 1
+#define ROBOT 1 //1 or 0
 #define ATTACK_GOAL_YELLOW true //true = Yellow, false = Blue
-#define GOAL_TRACK true
+#define GOAL_TRACK false
 
 // --- Camera --- //
 
@@ -28,10 +28,10 @@
 #define LS_NUM_MULTIPLIER 11.25
 
 #define LS_CALIBRATION_COUNT 50
-#define LS_CALIBRATION_BUFFER 60
+#define LS_CALIBRATION_BUFFER 300
 #define LS_ES_DEFAULT 100
 #define NO_LINE_ANGLE 400
-#define NO_LINE_SIZE 4
+#define NO_LINE_SIZE 3
 #define LINE_CORNER_ANGLE_THRESHOLD 30
 #define LINE_ANGLE_BUFFER -10
 #define LINE_ANGLE_BUFFER_CORNER -10
@@ -39,8 +39,8 @@
 #define LINE_BIG_SIZE 0.5
 
 #define MOTOR_NUM 4
-#define ORBIT_FAST_SPEED 200
-#define ORBIT_SLOW_SPEED 100
+#define ORBIT_FAST_SPEED 255
+#define ORBIT_SLOW_SPEED 200
 #define LINE_SPEED_FAST 200
 #define LINE_SPEED_SLOW 100
 
@@ -81,7 +81,13 @@
 // #define AVOID_LINE true
 
 // --- IR Sensors --- //
-#define TSSP_NUM 18
+#if ROBOT
+    #define TSSP_NUM 18
+#else 
+    #define TSSP_NUM 16
+#endif
+
+// #define TSSP_NUM 18//18
 #define TSSP_NO_BALL 400
 
 // --- Movement --- //

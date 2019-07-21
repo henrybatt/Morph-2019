@@ -31,14 +31,16 @@ LineInfo lineInfo(-1, 0, true);
 
 
 void calculateLineAvoidance(){
-    bool noLine = (LightArray.getLineAngle() == NO_LINE_ANGLE)  || LightArray.getLineSize() == 3;
+    bool noLine = (LightArray.getLineAngle() == NO_LINE_ANGLE);
     double angle = noLine ? -1 : doubleMod(LightArray.getLineAngle()+ Compass.heading, 360);
+    double size = LightArray.getLineSize();
 
     if (lineInfo.onField){
         if (!noLine){
             // Touching Line
             lineInfo.angle = angle;
             lineInfo.size = 1;
+            // lineInfo.size = size;
             lineInfo.onField = false;
         }
     } else {
@@ -48,6 +50,7 @@ void calculateLineAvoidance(){
                 // Over line but touching
                 lineInfo.angle = doubleMod(angle + 180, 360);
                 lineInfo.size = 2;
+                // lineInfo.size = 2 - size;
             }
         }else{
             if (noLine){
@@ -66,35 +69,31 @@ void calculateLineAvoidance(){
                 if (smallestAngleBetween(lineInfo.angle, angle) <= 90){
                     lineInfo.angle = angle;
                     lineInfo.size = 1;
+                    // lineInfo.size = size;
 
                 } else {
                     lineInfo.angle = doubleMod(angle + 180, 360);
                     lineInfo.size = 2;
+                    // lineInfo.size = 2 - size;
                 }
             }
+
         }
     }
-
-    Serial.println(lineInfo.size);
-
-
-    // if (!noLine){
-    //     movement.direction = doubleMod(lineInfo.angle + 180 - Compass.heading, 360);
-    //     if (lineInfo.size == 2){
-    //         movement.speed = abs(movement.direction - lineInfo.angle) < 60 ? LINE_SPEED_SLOW : LINE_SPEED_FAST;
-    //     } else if (lineInfo.size == 1 && smallestAngleBetween(lineInfo.angle, movement.direction) < 60){
-    //         movement.speed = 0;
-    //     }
-    // } else {
-    //     if (lineInfo.size == 3){
-    //         movement.direction = doubleMod(lineInfo.angle + 180 - Compass.heading, 360);
-    //         movement.speed = abs(movement.direction - lineInfo.angle) < 60 ? LINE_SPEED_SLOW : LINE_SPEED_FAST;
-    //     }
-    // }
-    if (!lineInfo.onField){
-        
-    }
-    
+    if (!noLine){
+        movement.direction = doubleMod(lineInfo.angle + 180 - Compass.heading, 360);
+        if (lineInfo.size == 2){
+            movement.speed = abs(movement.direction - lineInfo.angle) < 60 ? LINE_SPEED_SLOW : LINE_SPEED_FAST;
+        } else if (lineInfo.size == 1 && abs(movement.direction - lineInfo.angle) < 60){
+            movement.speed = 0;
+        }
+    } else {
+        if (lineInfo.size == 3){
+            movement.direction = doubleMod(lineInfo.angle + 180 - Compass.heading, 360);
+            movement.speed = abs(movement.direction - lineInfo.angle) < 60 ? LINE_SPEED_SLOW : LINE_SPEED_FAST;
+        }
+    }   
+    // Serial.printf("Line Angle: %f, Line Size: %f, Movement Direction: %f   \n  ", lineInfo.angle,lineInfo.size,movement.direction); 
 }
 
 void calculateOrbit(){
@@ -105,6 +104,14 @@ void calculateOrbit(){
     double angleAddition = ballAngleDifference * distanceMultiplier;
     movement.direction =  Tssps.ballVisible ? mod(Tssps.getAngle() + angleAddition, 360) : -1;
     movement.speed = ORBIT_SLOW_SPEED + (double)(ORBIT_FAST_SPEED - ORBIT_SLOW_SPEED) * (1.0 - (double)abs(angleAddition) / 90.0);
+    // Serial.printf("Tssp Angle: %i, Movement Direction %f \n",Tssps.getAngle(),movement.direction);
+}
+
+void stopLine(){
+    bool noLine = (LightArray.getLineAngle() == NO_LINE_ANGLE);
+    if (!noLine){
+        movement.speed = 0;
+    }
 }
 
 bool isAttack(){
@@ -112,6 +119,7 @@ bool isAttack(){
 }
 
 void attack(){
+    Cam.goalTrack();
     calculateOrbit();
 }
 
@@ -120,7 +128,6 @@ void defend(){
 }
 
 void calculateMovement(){
-
     if (isAttack()){
         attack();
     } else {
@@ -128,11 +135,12 @@ void calculateMovement(){
     }
 
     calculateLineAvoidance();
+    // stopLine();
 
-    if (Cam.attackVisible()){
+    if (Cam.facingGoal){
         movement.correction = round(goalTrackPID.update(doubleMod(doubleMod(Compass.heading - Cam.attackAngle, 360) + 180, 360), 0));
     } else {
-        movement.correction = round(idleHeadingPID.update(doubleMod(Compass.heading + 180, 360) - 180, 0));
+        movement.correction = round(headingPID.update(doubleMod(Compass.heading + 180, 360) - 180, 0));
     }
 
     if (!Tssps.ballVisible){
@@ -144,7 +152,6 @@ void calculateMovement(){
 }
 
 void setup(){
-
     Compass.init();
     Motor.init();
     Tssps.init();
@@ -166,7 +173,7 @@ void loop(){
     #if GOAL_TRACK
         Cam.calc(Compass.heading);
     #endif
-
+    
     calculateMovement();
 
     Motor.Move(movement.direction, movement.correction, movement.speed);
@@ -175,12 +182,5 @@ void loop(){
         digitalWrite(LED_BUILTIN, ledOn);
         ledOn = !ledOn;
     }
-
-    // Serial.print(LightArray.getLineAngle());
-    // Serial.print(" , ");
-    // Serial.print(LightArray.getLineSize());
-    // Serial.print(" , ");
-    // Serial.println(2 - LightArray.getLineSize());
-
 
 } 

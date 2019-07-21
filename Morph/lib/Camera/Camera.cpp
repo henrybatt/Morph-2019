@@ -49,6 +49,7 @@ void Camera::calc(int heading) {
     attackAngle = ATTACK_GOAL_YELLOW ? mod(yellow.angle + heading, 360) : mod(blue.angle + heading, 360);
     defendAngle = ATTACK_GOAL_YELLOW ? mod(blue.angle + heading, 360) : mod(yellow.angle + heading, 360);
 
+
 #if DEBUG_CAMERA
         Serial.print("Yellow Angle: ");
         Serial.print(yellow.angle);
@@ -60,7 +61,6 @@ void Camera::calc(int heading) {
         Serial.println(blue.length);
     #endif
 }
-
 
 bool Camera::attackVisible(){
     return ATTACK_GOAL_YELLOW ? yellow.exist : blue.exist;
@@ -74,3 +74,10 @@ bool Camera::goalVisible(){
     return attackVisible() || defendVisible();
 }
 
+void Camera::goalTrack(){
+    if (attackVisible()){
+        facingGoal = true;
+    } else {
+        facingGoal = false;
+    }
+}

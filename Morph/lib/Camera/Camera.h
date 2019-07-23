@@ -13,24 +13,30 @@ struct camData{
     int angle, length;
 };
 
+struct goalData{
+    int angle, length;
+    bool exist;
+};
+
 class Camera{
     public:
         camData yellow;
         camData blue;
 
+        goalData attack;
+        goalData defend;
+
         void init();
         void read();
-        void calc(int heading);
+        void calc();
+        void update();
 
-        bool attackVisible();
-        bool defendVisible();
-        bool goalVisible();
+        void updateAttack(int angle, int length, bool exist);
+        void updateDefend(int angle, int length, bool exist);
 
         void goalTrack();
 
-        int attackAngle , defendAngle;
-
-        bool facingGoal;
+        bool faceGoal;
 
     private:
         int currentin;

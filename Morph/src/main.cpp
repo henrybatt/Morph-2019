@@ -93,7 +93,7 @@ void calculateLineAvoidance(){
             movement.speed = abs(movement.direction - lineInfo.angle) < 60 ? LINE_SPEED_SLOW : LINE_SPEED_FAST;
         }
     }   
-    // Serial.printf("Line Angle: %f, Line Size: %f, Movement Direction: %f   \n  ", lineInfo.angle,lineInfo.size,movement.direction); 
+    // Serial.printf("Light Angle: %f, Line Angle: %f, Line Size: %f, Movement Direction: %f   \n  ",LightArray.getLineAngle(),lineInfo.angle,lineInfo.size,movement.direction); 
 }
 
 void calculateOrbit(){
@@ -137,8 +137,9 @@ void calculateMovement(){
     calculateLineAvoidance();
     // stopLine();
 
-    if (Cam.facingGoal){
-        movement.correction = round(goalTrackPID.update(doubleMod(doubleMod(Compass.heading - Cam.attackAngle, 360) + 180, 360), 0));
+    if (Cam.faceGoal){
+        double goalAngle = doubleMod(Cam.attack.angle + Compass.heading, 360);
+        movement.correction = round(goalTrackPID.update(doubleMod(doubleMod(Compass.heading - goalAngle, 360) + 180, 360), 0));
     } else {
         movement.correction = round(headingPID.update(doubleMod(Compass.heading + 180, 360) - 180, 0));
     }

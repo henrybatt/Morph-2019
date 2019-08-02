@@ -18,11 +18,13 @@ class Scan():
         self.robot = robot_
         if self.robot == self.ROBOT_1:
             self.thresholds = [
-            [(0, 20, -26, 28, -8, 34)],  # Yellow Goal
+            [(63, 73, -1, 23, 9, 53)],  # Yellow Goal
             [(39, 61, -37, -15, -42, 2)]] # Blue Goal
-            self.whitebal = (-6.02073, -3.555992, 0.9616871)
+            self.whitebal = (-6.02073, -5.753914, -0.2064142)
             self.window = (55, 0, 240, 240)
             self.max_rad = 120
+            self.CENTREX = 120
+            self.CENTREY = 120
 
         elif self.robot == self.robot_2:
             self.thresholds = [
@@ -31,17 +33,19 @@ class Scan():
             self.whitebal = (0, 0, 0)
             self.window = (0, 0, 0, 0)
             self.max_rad = 120
+            self.CENTREX = 120
+            self.CENTREY = 120
 
         # - Sensor Setup - #
         sensor.reset()
         sensor.set_pixformat(sensor.RGB565)
         sensor.set_framesize(sensor.QVGA)
-        #sensor.set_windowing(self.window)
+        sensor.set_windowing(self.window)
         sensor.skip_frames(time=1000)
 
         # - Balance - #
         sensor.set_auto_whitebal(False, rgb_gain_db=self.whitebal)
-        sensor.set_brightness(0)
+        sensor.set_brightness(3)
         sensor.set_contrast(3)
         sensor.set_saturation(2)
         curr_exposure = sensor.get_exposure_us()
@@ -63,8 +67,8 @@ class Scan():
     def screenShot(self, debug=False):
         self.img = sensor.snapshot()
         if(debug):
-            self.img.draw_cross(int(self.img.width() / 2), int(self.img.height() / 2))
-            self.img.draw_circle((int(self.img.width() / 2), int(self.img.height() / 2), self.max_rad))
+            self.img.draw_cross(self.CENTREX, self.CENTREY)
+            self.img.draw_circle(self.CENTREX, self.CENTREY, self.max_rad)
 
 
 
@@ -84,7 +88,7 @@ class Scan():
                     if debug:
                         self.img.draw_cross(blob.cx(), blob.cy())
                         self.img.draw_rectangle(blob.rect())
-                        self.img.draw_line(((int(self.img.width() / 2)), int(self.img.height() / 2), blob.cx(), blob.cy()),thickness=2)
+                        self.img.draw_line((self.CENTREX, self.CENTREY, blob.cx(), blob.cy()),thickness=2)
 
                     return (True, blob.cx(), blob.cy())
         return (False, self.NO_DATA, self.NO_DATA)
@@ -145,12 +149,12 @@ while True:
 
 
     #scanner.whiteBal() #Print white balance value
-    scanner.screenShot(False) #Display radius & cross
+    scanner.screenShot(True) #Display radius & cross
     data = scanner.findData(True) #Draw lines and boxs around blobs
-    sender.sendData(data, False) #Print angle and distance
+    sender.sendData(data, True) #Print angle and distance
 
 
-    LED(2).toggle() #Flashes Green LED
+    #LED(2).toggle() #Flashes Green LED
     #print(clock.fps())
 
 

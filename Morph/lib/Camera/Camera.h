@@ -10,13 +10,14 @@
 struct camData{
     int x,y;
     bool exist;
-    int angle, length;
+    int angle, distance;
 };
 
 struct goalData{
-    int angle, length;
+    int angle, distance;
     bool exist;
 };
+
 
 class Camera{
     public:
@@ -31,10 +32,12 @@ class Camera{
         void calc();
         void update();
 
-        void updateAttack(int angle, int length, bool exist);
-        void updateDefend(int angle, int length, bool exist);
+        void updateAttack(int angle, int distance, bool exist);
+        void updateDefend(int angle, int distance, bool exist);
 
         void goalTrack();
+
+        double closestDistance();
 
         bool faceGoal;
 

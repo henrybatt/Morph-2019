@@ -36,37 +36,37 @@ void Camera::read(){
     }
 }
 
-void Camera::updateAttack(int angle, int length, bool exist){
+void Camera::updateAttack(int angle, int distance, bool exist){
     attack.angle = angle;
-    attack.length = length;
+    attack.distance = distance;
     attack.exist = exist;
 }
 
-void Camera::updateDefend(int angle, int length, bool exist){
-    defend.angle = angle;
-    defend.length = length;
+void Camera::updateDefend(int angle, int distance, bool exist){
+    defend.angle = mod(angle + 180, 36);
+    defend.distance = distance;
     defend.exist = exist;
 }
 
 void Camera::calc() {
-    // Calculates goal angle and length 
+    // Calculates goal angle and distance 
     yellow.angle = mod(450 - round(degrees(atan2(yellow.y, yellow.x))), 360);
-    yellow.length = (sqrt(pow(yellow.x, 2) + pow(yellow.y, 2)));
+    yellow.distance = (sqrt(pow(yellow.x, 2) + pow(yellow.y, 2)));
 
     blue.angle = mod(450 - round(degrees(atan2(blue.y, blue.x))), 360);
-    blue.length = (sqrt(pow(blue.x, 2) + pow(blue.y, 2)));
+    blue.distance = (sqrt(pow(blue.x, 2) + pow(blue.y, 2)));
 
     #if DEBUG_CAMERA
             Serial.print("Yellow Angle: ");
             Serial.print(yellow.angle);
-            Serial.print(", Yellow Length: ");
-            Serial.print(yellow.length);
+            Serial.print(", Yellow distance: ");
+            Serial.print(yellow.distance);
             Serial.print(", Yellow Exist: ");
             Serial.print(yellow.exist);
             Serial.print(", Blue Angle: ");
             Serial.print(blue.angle);
-            Serial.print(", Blue Length: ");
-            Serial.print(blue.length);
+            Serial.print(", Blue distance: ");
+            Serial.print(blue.distance);
             Serial.print(", Blue Exist: ");
             Serial.println(blue.exist);
         #endif
@@ -77,11 +77,11 @@ void Camera::update(){
     calc();
 
     #if ATTACK_GOAL_YELLOW
-        updateAttack(yellow.angle, yellow.length, yellow.exist);
-        updateDefend(blue.angle, blue.length, blue.exist);
+        updateAttack(yellow.angle, yellow.distance, yellow.exist);
+        updateDefend(blue.angle, blue.distance, blue.exist);
     #else
-        updateAttack(blue.angle, blue.length, blue.exist);
-        updateDefend(yellow.angle, yellow.length, yellow.exist);
+        updateAttack(blue.angle, blue.distance, blue.exist);
+        updateDefend(yellow.angle, yellow.distance, yellow.exist);
     #endif
 }
 
@@ -92,3 +92,17 @@ void Camera::goalTrack(){
         faceGoal = false;
     }
 }
+
+double Camera::closestDistance(){
+    if(yellow.exist || blue.exist){
+        if(!yellow.exist){
+            return blue.distance;
+        } else if (!blue.exist){
+            return blue.distance;
+        } else {
+            return min(yellow.distance, blue.distance);
+        }
+    }
+    return 0;
+}
+

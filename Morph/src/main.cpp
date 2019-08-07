@@ -9,14 +9,20 @@
 #include <LightSensorArray.h>
 #include <Camera.h>
 
+#include <LineData.h>
+#include <Coord.h>
 
-PID idleHeadingPID(IDLE_HEADING_KP, IDLE_HEADING_KI, IDLE_HEADING_KD, IDLE_HEADING_MAX_CORRECTION);
+
 PID headingPID(HEADING_KP, HEADING_KI, HEADING_KD, HEADING_MAX_CORRECTION);
-
 PID goalTrackPID(GOAL_TRACK_KP, GOAL_TRACK_KI, GOAL_TRACK_KD, GOAL_TRACK_MAX_CORRECTION);
+PID coordPID(TO_COORD_KP, TO_COORD_KI, TO_COORD_KD, TO_COORD_MAX_SPEED);
+
+PID xPID(X_MOVEMENT_KP, X_MOVEMENT_KI, X_MOVEMENT_KD, X_MOVEMENT_MAX);
+PID yPID(Y_MOVEMENT_KP, Y_MOVEMENT_KI, Y_MOVEMENT_KD, Y_MOVEMENT_MAX);
 
 Timer attackLEDTimer(800000);
 Timer defenceLEDTimer(400000);
+
 
 bool ledOn = false;
 
@@ -27,13 +33,60 @@ LightSensorArray LightArray;
 Camera Cam;
 
 DirSpeed movement;
-LineInfo lineInfo(-1, 0, true);
+LineData lineInfo(-1, 0, true);
 
+Coord robotCoords;
+Coord goalCoords = Coord(0, -FIELD_CM_WITH_GOAL); //Position of defending goal in cartesian
+
+void calculatePosition(){
+    // --- Calculate Robot Position --- //
+    int angle = Cam.closestDistance() == Cam.yellow.distance ? Cam.yellow.angle : Cam.blue.angle;
+    angle = mod(angle + Compass.heading, 360);
+    double distance = Cam.closestDistance();
+
+    // Decide if in attacking or defending side of field to determine what quadrant group were in. (Positive or negative y)
+    double quadrant = ((ATTACK_GOAL_YELLOW && (Cam.closestDistance() == Cam.yellow.distance)) || (!ATTACK_GOAL_YELLOW && (Cam.closestDistance() == Cam.blue.distance)) ? 1 : -1);
+
+    // Robot Position calculation. Polar > Cartesian
+    robotCoords.x = constrain(distance * -sin(degreesToRadians(angle)), -(FIELD_WIDTH_CM / 2), (FIELD_WIDTH_CM / 2));
+    robotCoords.y = FIELD_CM_WITH_GOAL * quadrant + distance * -cos(degreesToRadians(angle));
+}
+
+bool moveByDiff(Coord diff){
+    if (diff.getMagnitude() < COORD_THRESHOLD_DISTANCE){
+        //At coords, stop
+        movement.direction = -1;
+        movement.speed = 0;
+        return true;
+    } else {
+        // Calculate direction towards coords
+        movement.direction = mod(diff.getAngle() - Compass.heading, 360);
+        movement.speed = abs(coordPID.update(diff.getMagnitude(), 0));
+        return false;
+    }
+}
+
+bool moveToCoord(Coord coords){
+    // --- Find difference between desired and robots' coords and move into position --- //
+    if (Cam.yellow.exist || Cam.blue.exist){
+        // Movement can be calculated, move by the point difference between coords
+        return moveByDiff(coords.subtract(robotCoords));
+    } else {
+        //Cannot calculate position, stop
+        movement.direction = -1;
+        movement.speed = 0;
+        return false;
+    }
+}
+
+bool isAttack(){
+    return true;
+}
 
 void calculateLineAvoidance(){
     bool noLine = (LightArray.getLineAngle() == NO_LINE_ANGLE);
     double angle = noLine ? -1 : doubleMod(LightArray.getLineAngle()+ Compass.heading, 360);
-    double size = LightArray.getLineSize();
+    // double size = LightArray.getLineSize();
 
     if (lineInfo.onField){
         if (!noLine){
@@ -96,6 +149,7 @@ void calculateLineAvoidance(){
     // Serial.printf("Light Angle: %f, Line Angle: %f, Line Size: %f, Movement Direction: %f   \n  ",LightArray.getLineAngle(),lineInfo.angle,lineInfo.size,movement.direction); 
 }
 
+
 void calculateOrbit(){
     double value = Tssps.getAngle() > 180 ? Tssps.getAngle() - 360 : Tssps.getAngle();
     double ballAngleDifference = findSign(value) * fmin(90, 0.4 * pow(MATH_E, 0.15 * smallestAngleBetween(Tssps.getAngle(), 0)));
@@ -107,24 +161,65 @@ void calculateOrbit(){
     // Serial.printf("Tssp Angle: %i, Movement Direction %f \n",Tssps.getAngle(),movement.direction);
 }
 
+
 void stopLine(){
-    bool noLine = (LightArray.getLineAngle() == NO_LINE_ANGLE);
-    if (!noLine){
+    if (LightArray.getLineAngle() != NO_LINE_ANGLE){
+        Serial.println("STOPPED");
         movement.speed = 0;
+        delay(3000);
+        calculateOrbit();
     }
-}
 
-bool isAttack(){
-    return true;
 }
-
 void attack(){
     Cam.goalTrack();
-    calculateOrbit();
+
+    if (Tssps.ballVisible){
+        // Cam.goalTrack();
+        calculateOrbit();
+    } else {
+        //No ball, move to centre
+        moveToCoord(Coord(NO_BALL_COORD_X,NO_BALL_COORD_Y));
+    }
+
 }
 
 void defend(){
-    calculateOrbit();
+
+    if (Cam.defend.exist){
+        if (Tssps.ballVisible){
+            //Calculate Ball Position ?
+            if (angleIsInside(360 - DEFEND_CAPTURE_ANGLE, DEFEND_CAPTURE_ANGLE, Tssps.getAngle()) && Tssps.getStrength() > DEFEND_SURGE_STRENGTH && robotCoords.y < DEFEND_SURGE_Y){
+                // Ball near capture zone, orbit behind and surge forwards
+                calculateOrbit();
+
+            } else if (!angleIsInside(270, 90, Tssps.getAngle())){
+                //Ball is behind robot
+                calculateOrbit();
+
+            } else{
+                // Defend Goal
+                double yMovement = yPID.update(Cam.defend.distance,DEFEND_DISTANCE);
+                double xMovement = xPID.update(mod(Tssps.getAngle() + 180, 360) - 180, 0);
+
+                movement.direction = mod(radiansToDegrees(atan2(xMovement, yMovement)), 360);
+                movement.speed = sqrt(pow(xMovement,2) + pow(yMovement,2));
+
+            }
+        } else {
+            // No ball, centre to goal
+            moveToCoord(Coord(0, goalCoords.y + DEFEND_DISTANCE));
+        }
+    } else {
+        if (Tssps.ballVisible){
+            //No goal, become attacker
+            calculateOrbit();
+        } else {
+            movement.direction = -1;
+            movement.speed = 0;
+        }
+    }
+    Cam.faceGoal = false;
 }
 
 void calculateMovement(){
@@ -133,23 +228,17 @@ void calculateMovement(){
     } else {
         defend();
     }
-
-    calculateLineAvoidance();
-    // stopLine();
+    
+    // calculateLineAvoidance();
+    stopLine();
 
     if (Cam.faceGoal){
         double goalAngle = doubleMod(Cam.attack.angle + Compass.heading, 360);
-        movement.correction = round(goalTrackPID.update(doubleMod(doubleMod(Compass.heading - goalAngle, 360) + 180, 360), 0));
+        movement.correction = round(goalTrackPID.update(doubleMod(doubleMod(Compass.heading - goalAngle, 360) + 180, 360) - 180, 0));
+        // Serial.printf("Face: %i, Angle: %d, Atttack: %f, Correction: %f \n", Cam.faceGoal, Cam.attack.angle,goalAngle, movement.correction);
     } else {
         movement.correction = round(headingPID.update(doubleMod(Compass.heading + 180, 360) - 180, 0));
     }
-
-    if (!Tssps.ballVisible){
-        if (lineInfo.angle == -1){
-            movement.speed = 0;
-        }
-    }
-
 }
 
 void setup(){
@@ -159,9 +248,9 @@ void setup(){
     LightArray.init();
     Cam.init();
 
-    pinMode(13, OUTPUT);
-    digitalWrite(13, HIGH);
-    digitalWrite(13, LOW);
+    pinMode(LED_BUILTIN, OUTPUT);
+    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(LED_BUILTIN, LOW);
 }
 
 void loop(){
@@ -169,13 +258,17 @@ void loop(){
 
     Tssps.read();
 
-    LightArray.read();
+    LightArray.update();
 
     #if GOAL_TRACK
-        Cam.calc(Compass.heading);
+        Cam.update();
     #endif
     
     calculateMovement();
+
+    Serial.print(movement.direction);
+    Serial.print(" ");
+    Serial.println(movement.speed);
 
     Motor.Move(movement.direction, movement.correction, movement.speed);
 
@@ -185,3 +278,4 @@ void loop(){
     }
 
 } 
+

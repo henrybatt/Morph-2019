@@ -58,13 +58,6 @@ struct DirSpeed {
     double correction;
 };
 
-struct LineInfo {
-    double angle;
-    double size;
-    bool onField;
-
-    LineInfo(double a, double s, bool o) : angle(a), size(s), onField(o) {}
-};
 
 
 
@@ -113,6 +106,8 @@ struct LineInfo {
 #define TSSP_Y_17 0.93963
 
 
+// --- PID --- //
+
 #define IDLE_HEADING_KP 1
 #define IDLE_HEADING_KI 0
 #define IDLE_HEADING_KD 0.05
@@ -123,24 +118,25 @@ struct LineInfo {
 #define HEADING_KD 0.2
 #define HEADING_MAX_CORRECTION 255
 
-#define DEFEND_SIDEWAYS_KP -4
-#define DEFEND_SIDEWAYS_KI 0
-#define DEFEND_SIDEWAYS_KD 0
-#define DEFEND_SIDEWAYS_MAX_SPEED 200
+#define X_MOVEMENT_KP 1
+#define X_MOVEMENT_KI 1
+#define X_MOVEMENT_KD 1
+#define X_MOVEMENT_MAX 1
 
-#define CENTRE_DISTANCE_KP 0.5
-#define CENTRE_DISTANCE_KI 0
-#define CENTRE_DISTANCE_KD 0.1
-#define CENTRE_DISTANCE_MAX_SPEED 180
+#define Y_MOVEMENT_KP 1
+#define Y_MOVEMENT_KI 1
+#define Y_MOVEMENT_KD 1
+#define Y_MOVEMENT_MAX 1
 
-#define CENTRE_SIDEWAYS_KP 0.5
-#define CENTRE_SIDEWAYS_KI 0
-#define CENTRE_SIDEWAYS_KD 0.1
-#define CENTRE_SIDEWAYS_MAX_SPEED 180
 
-#define GOAL_TRACK_KP 0.6
+#define TO_COORD_KP 1
+#define TO_COORD_KI 0
+#define TO_COORD_KD 0
+#define TO_COORD_MAX_SPEED 120
+
+#define GOAL_TRACK_KP 2
 #define GOAL_TRACK_KI 0
-#define GOAL_TRACK_KD 0.01
-#define GOAL_TRACK_MAX_CORRECTION 30
+#define GOAL_TRACK_KD 0.2
+#define GOAL_TRACK_MAX_CORRECTION 150
 
 #endif

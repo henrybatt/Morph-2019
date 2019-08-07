@@ -5,7 +5,8 @@
 
 #define ROBOT 1 //1 or 0
 #define ATTACK_GOAL_YELLOW true //true = Yellow, false = Blue
-#define GOAL_TRACK false
+#define GOAL_TRACK true
+
 
 // --- Camera --- //
 
@@ -28,10 +29,10 @@
 #define LS_NUM_MULTIPLIER 11.25
 
 #define LS_CALIBRATION_COUNT 50
-#define LS_CALIBRATION_BUFFER 300
+#define LS_CALIBRATION_BUFFER 220
 #define LS_ES_DEFAULT 100
-#define NO_LINE_ANGLE 400
-#define NO_LINE_SIZE 3
+#define NO_LINE_ANGLE -1
+#define NO_LINE_SIZE -1
 #define LINE_CORNER_ANGLE_THRESHOLD 30
 #define LINE_ANGLE_BUFFER -10
 #define LINE_ANGLE_BUFFER_CORNER -10
@@ -41,10 +42,10 @@
 #define OVER_LINE_SPEED 200
 
 #define MOTOR_NUM 4
-#define ORBIT_FAST_SPEED 255
-#define ORBIT_SLOW_SPEED 200
-#define LINE_SPEED_FAST 200
-#define LINE_SPEED_SLOW 100
+#define ORBIT_FAST_SPEED 100
+#define ORBIT_SLOW_SPEED 50
+#define LINE_SPEED_FAST 100
+#define LINE_SPEED_SLOW 50
 
 
 // --- IR Sensors --- //
@@ -85,5 +86,31 @@
 #define MOTOR_ANGLE_2 225
 #define MOTOR_ANGLE_3 315
 
+// Field Information
+#define FIELD_WIDTH_CM 182
+#define FIELD_LENGTH_CM 243
+#define GOAL_OFFSET_CM 30
+#define DEFENDING_BOX_WIDTH_CM 30
+#define FIELD_CM_WITH_GOAL (FIELD_WIDTH_CM / 2 + GOAL_OFFSET_CM)
+
+// --- Coords --- //
+#define COORD_THRESHOLD_DISTANCE 2
+
+//Coords to move when no ball visible
+#define NO_BALL_COORD_X 0
+#define NO_BALL_COORD_Y 0
+
+//Coords to move when other robot sees ball is out of field
+#define BALL_OUT_COORD_X 0
+#define BALL_OUT_COORD_Y -30
+
+
+// - Defender - //
+
+#define DEFEND_CAPTURE_ANGLE 20
+#define DEFEND_SURGE_STRENGTH 150 //
+#define DEFEND_SURGE_DISTANCE 550
+#define DEFEND_DISTANCE 30 //Distance from goal in CM to sit at
+#define DEFEND_SURGE_Y -30
 
 #endif

@@ -9,52 +9,52 @@
 
 // --- Light Sensors --- //
 
-#define MUX_OUT_1 A11
-#define MUX_A0 50
-#define MUX_A1 51
-#define MUX_A2 52
-#define MUX_A3 53
+#define MUX_A_OUT A11
+#define MUX_A_0 50
+#define MUX_A_1 51
+#define MUX_A_2 52
+#define MUX_A_3 53
 
-#define MUX_OUT_2 A10
-#define MUX_A4 54 
-#define MUX_A5 55
-#define MUX_A6 56
-#define MUX_A7 57
+#define MUX_B_OUT A10
+#define MUX_B_0 57
+#define MUX_B_1 56
+#define MUX_B_2 55
+#define MUX_B_3 54
 
-
-#define LS_1 7
+#define LS_1 14
 #define LS_2 6
-#define LS_3 5
-#define LS_4 4
-#define LS_5 3
-#define LS_6 2
-#define LS_7 1
+#define LS_3 10
+#define LS_4 2
+#define LS_5 12
+#define LS_6 4
+#define LS_7 8
 #define LS_8 0
-#define LS_9 8
+#define LS_9 1
 #define LS_10 9
-#define LS_11 10
-#define LS_12 11
-#define LS_13 12
-#define LS_14 13
-#define LS_15 14
+#define LS_11 5
+#define LS_12 13
+#define LS_13 3
+#define LS_14 11
+#define LS_15 -1
 #define LS_16 15
+#define LS_17 -1
+#define LS_18 22
+#define LS_19 -1
+#define LS_20 -1
+#define LS_21 28
+#define LS_22 -1
+#define LS_23 24
+#define LS_24 -1 //              //17,20,21,24,25,29
+#define LS_25 -1 //              //16,28
+#define LS_26 25
+#define LS_27 -1
+#define LS_28 -1
+#define LS_29 19 //             ///18,19,22,23,26,27,30,31
+#define LS_30 -1
+#define LS_31 -1
+#define LS_32 31
 
-#define LS_17 14//7
-#define LS_18 6
-#define LS_19 10//5
-#define LS_20 2//4
-#define LS_21 12//3
-#define LS_22 4//2
-#define LS_23 8//1
-#define LS_24 0
-#define LS_25 1//8
-#define LS_26 9
-#define LS_27 5//10
-#define LS_28 13//11
-#define LS_29 3//12
-#define LS_30 11//13
-#define LS_31 7//14
-#define LS_32 15
+// Pin 7
 
 
 // --- IR Sensors --- //

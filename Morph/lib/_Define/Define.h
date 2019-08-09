@@ -5,7 +5,7 @@
 
 #define ROBOT 1 //1 or 0
 #define ATTACK_GOAL_YELLOW true //true = Yellow, false = Blue
-#define GOAL_TRACK true
+#define GOAL_TRACK false
 
 
 // --- Camera --- //
@@ -13,20 +13,19 @@
 #define cameraSerial Serial4
 #define CAM_BUFFER_NUM 7
 #define CAM_START_NUM 255
-#define CAM_IMAGE_WIDTH 240
+#define CAM_IMAGE_WIDTH 320
+#define CAM_IMAGE_HEIGHT 240
 #define CAM_NO_DATA 250
 
 // --- Light Sensors --- //
-#define LS_NUM 32
-#define LS_CALIBRATE_COUNT 10
-#define LS_DEFAULT_THRESHOLD 200
+
 #define LS_BUFFER 200
 #define LS_INTERVAL_ANGLE 11.25
 #define LS_RADIUS 54
 #define LS_AVOID_SIZE 1
 
 #define LS_NUM 32
-#define LS_NUM_MULTIPLIER 11.25
+#define LS_NUM_MULTIPLIER 11.25 // L360 / LS_NUM
 
 #define LS_CALIBRATION_COUNT 50
 #define LS_CALIBRATION_BUFFER 220
@@ -91,7 +90,7 @@
 #define FIELD_LENGTH_CM 243
 #define GOAL_OFFSET_CM 30
 #define DEFENDING_BOX_WIDTH_CM 30
-#define FIELD_CM_WITH_GOAL (FIELD_WIDTH_CM / 2 + GOAL_OFFSET_CM)
+#define FIELD_CM_WITH_GOAL (FIELD_WIDTH_CM / 2 - GOAL_OFFSET_CM)
 
 // --- Coords --- //
 #define COORD_THRESHOLD_DISTANCE 2
@@ -109,7 +108,7 @@
 
 #define DEFEND_CAPTURE_ANGLE 20
 #define DEFEND_SURGE_STRENGTH 150 //
-#define DEFEND_SURGE_DISTANCE 550
+#define DEFEND_SURGE_DISTANCE 400
 #define DEFEND_DISTANCE 30 //Distance from goal in CM to sit at
 #define DEFEND_SURGE_Y -30
 

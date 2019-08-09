@@ -40,12 +40,18 @@ Coord goalCoords = Coord(0, -FIELD_CM_WITH_GOAL); //Position of defending goal i
 
 void calculatePosition(){
     // --- Calculate Robot Position --- //
-    int angle = Cam.closestDistance() == Cam.yellow.distance ? Cam.yellow.angle : Cam.blue.angle;
+    int angle = Cam.closestDistance() == Cam.yellow.cm ? Cam.yellow.angle : Cam.blue.angle;
     angle = mod(angle + Compass.heading, 360);
     double distance = Cam.closestDistance();
 
     // Decide if in attacking or defending side of field to determine what quadrant group were in. (Positive or negative y)
-    double quadrant = ((ATTACK_GOAL_YELLOW && (Cam.closestDistance() == Cam.yellow.distance)) || (!ATTACK_GOAL_YELLOW && (Cam.closestDistance() == Cam.blue.distance)) ? 1 : -1);
+    double quadrant = ((ATTACK_GOAL_YELLOW && (Cam.closestDistance() == Cam.yellow.cm)) || (!ATTACK_GOAL_YELLOW && !(Cam.closestDistance() == Cam.yellow.cm)) ? 1 : -1);
+
+    // Serial.print(Cam.yellow.angle);
+    // Serial.print(" , ");
+    // Serial.print(Cam.yellow.distance);
+    // Serial.print(" , ");
+    // Serial.println(Cam.yellow.cm);
 
     // Robot Position calculation. Polar > Cartesian
     robotCoords.x = constrain(distance * -sin(degreesToRadians(angle)), -(FIELD_WIDTH_CM / 2), (FIELD_WIDTH_CM / 2));
@@ -171,15 +177,19 @@ void stopLine(){
     }
 
 }
+
 void attack(){
-    Cam.goalTrack();
+    #if GOAL_TRACK:
+        Cam.goalTrack();
+    #endif
 
     if (Tssps.ballVisible){
         // Cam.goalTrack();
         calculateOrbit();
     } else {
         //No ball, move to centre
-        moveToCoord(Coord(NO_BALL_COORD_X,NO_BALL_COORD_Y));
+        movement.speed = 0;
+        // moveToCoord(Coord(NO_BALL_COORD_X,NO_BALL_COORD_Y));
     }
 
 }
@@ -192,10 +202,12 @@ void defend(){
             if (angleIsInside(360 - DEFEND_CAPTURE_ANGLE, DEFEND_CAPTURE_ANGLE, Tssps.getAngle()) && Tssps.getStrength() > DEFEND_SURGE_STRENGTH && robotCoords.y < DEFEND_SURGE_Y){
                 // Ball near capture zone, orbit behind and surge forwards
                 calculateOrbit();
+                Serial.println("Surge");
 
             } else if (!angleIsInside(270, 90, Tssps.getAngle())){
                 //Ball is behind robot
                 calculateOrbit();
+                Serial.print("Behind");
 
             } else{
                 // Defend Goal
@@ -204,7 +216,7 @@ void defend(){
 
                 movement.direction = mod(radiansToDegrees(atan2(xMovement, yMovement)), 360);
                 movement.speed = sqrt(pow(xMovement,2) + pow(yMovement,2));
-
+                Serial.println("Defend");
             }
         } else {
             // No ball, centre to goal
@@ -229,8 +241,8 @@ void calculateMovement(){
         defend();
     }
     
-    // calculateLineAvoidance();
-    stopLine();
+    calculateLineAvoidance();
+    // stopLine();
 
     if (Cam.faceGoal){
         double goalAngle = doubleMod(Cam.attack.angle + Compass.heading, 360);
@@ -262,15 +274,13 @@ void loop(){
 
     #if GOAL_TRACK
         Cam.update();
+        calculatePosition();
     #endif
-    
+
     calculateMovement();
 
-    Serial.print(movement.direction);
-    Serial.print(" ");
-    Serial.println(movement.speed);
-
     Motor.Move(movement.direction, movement.correction, movement.speed);
+
 
     if (attackLEDTimer.timeHasPassed()){
         digitalWrite(LED_BUILTIN, ledOn);

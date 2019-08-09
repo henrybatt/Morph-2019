@@ -13,39 +13,41 @@ void Camera::read(){
                 camBuffer[i] = cameraSerial.read();
             }
 
-            yellow.x = camBuffer[0] - CAM_IMAGE_WIDTH/2;
-            yellow.y = camBuffer[1] - CAM_IMAGE_WIDTH / 2;
+            yellow.x = camBuffer[0] - (CAM_IMAGE_WIDTH  / 2);
+            yellow.y = camBuffer[1] - (CAM_IMAGE_HEIGHT / 2);
             yellow.exist = camBuffer[4];
 
-            blue.x = camBuffer[2] - CAM_IMAGE_WIDTH / 2;
-            blue.y = camBuffer[3] - CAM_IMAGE_WIDTH / 2;
+            blue.x = camBuffer[2] - (CAM_IMAGE_WIDTH / 2);
+            blue.y = camBuffer[3] - (CAM_IMAGE_HEIGHT / 2);
             blue.exist = camBuffer[5];  
-
-            #if DEBUG_CAMERA_RAW  
-                Serial.print("Yellow: ");
-                Serial.print(yellow.x);
-                Serial.print(" , ");
-                Serial.print(yellow.y);
-                Serial.print(" Blue: ");
-                Serial.print(blue.x);
-                Serial.print(" , ");
-                Serial.println(blue.y);
-            #endif   
 
         }
     }
+
+    #if DEBUG_CAMERA_RAW
+        Serial.print("Yellow: ");
+        Serial.print(yellow.x);
+        Serial.print(" , ");
+        Serial.print(yellow.y);
+        Serial.print(" Blue: ");
+        Serial.print(blue.x);
+        Serial.print(" , ");
+        Serial.println(blue.y);
+    #endif
 }
 
-void Camera::updateAttack(int angle, int distance, bool exist){
+void Camera::updateAttack(int angle, int distance, bool exist, double cm){
     attack.angle = angle;
     attack.distance = distance;
     attack.exist = exist;
+    attack.cm = cm;
 }
 
-void Camera::updateDefend(int angle, int distance, bool exist){
+void Camera::updateDefend(int angle, int distance, bool exist, double cm){
     defend.angle = mod(angle + 180, 36);
     defend.distance = distance;
     defend.exist = exist;
+    defend.cm = cm;
 }
 
 void Camera::calc() {
@@ -55,6 +57,9 @@ void Camera::calc() {
 
     blue.angle = mod(450 - round(degrees(atan2(blue.y, blue.x))), 360);
     blue.distance = (sqrt(pow(blue.x, 2) + pow(blue.y, 2)));
+
+    yellow.cm = centimeterDistance(yellow.distance);
+    blue.cm = centimeterDistance(blue.distance);
 
     #if DEBUG_CAMERA
             Serial.print("Yellow Angle: ");
@@ -74,14 +79,15 @@ void Camera::calc() {
 
 void Camera::update(){
     read();
+    blue.exist = false;
     calc();
 
     #if ATTACK_GOAL_YELLOW
-        updateAttack(yellow.angle, yellow.distance, yellow.exist);
-        updateDefend(blue.angle, blue.distance, blue.exist);
+        updateAttack(yellow.angle, yellow.distance, yellow.exist, yellow.cm);
+        updateDefend(blue.angle, blue.distance, blue.exist, blue.cm);
     #else
-        updateAttack(blue.angle, blue.distance, blue.exist);
-        updateDefend(yellow.angle, yellow.distance, yellow.exist);
+        updateAttack(blue.angle, blue.distance, blue.exist, blue.cm);
+        updateDefend(yellow.angle, yellow.distance, yellow.exist, yellow.cm);
     #endif
 }
 
@@ -93,14 +99,18 @@ void Camera::goalTrack(){
     }
 }
 
+double Camera::centimeterDistance(double pixelDistance) {
+    return 8.205 * pow(MATH_E, 0.037 * pixelDistance);
+}
+
 double Camera::closestDistance(){
     if(yellow.exist || blue.exist){
         if(!yellow.exist){
-            return blue.distance;
+            return blue.cm;
         } else if (!blue.exist){
-            return blue.distance;
+            return yellow.cm;
         } else {
-            return min(yellow.distance, blue.distance);
+            return min(yellow.cm, blue.cm);
         }
     }
     return 0;

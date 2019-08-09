@@ -118,21 +118,21 @@ struct DirSpeed {
 #define HEADING_KD 0.2
 #define HEADING_MAX_CORRECTION 255
 
-#define X_MOVEMENT_KP 1
-#define X_MOVEMENT_KI 1
-#define X_MOVEMENT_KD 1
-#define X_MOVEMENT_MAX 1
+#define X_MOVEMENT_KP 5
+#define X_MOVEMENT_KI 0
+#define X_MOVEMENT_KD 0.3
+#define X_MOVEMENT_MAX 100
 
-#define Y_MOVEMENT_KP 1
-#define Y_MOVEMENT_KI 1
-#define Y_MOVEMENT_KD 1
-#define Y_MOVEMENT_MAX 1
+#define Y_MOVEMENT_KP 10
+#define Y_MOVEMENT_KI 0
+#define Y_MOVEMENT_KD 0.1
+#define Y_MOVEMENT_MAX 100
 
 
-#define TO_COORD_KP 1
+#define TO_COORD_KP 1.5
 #define TO_COORD_KI 0
 #define TO_COORD_KD 0
-#define TO_COORD_MAX_SPEED 120
+#define TO_COORD_MAX_SPEED 100
 
 #define GOAL_TRACK_KP 2
 #define GOAL_TRACK_KI 0

@@ -18,12 +18,12 @@ class Scan():
         self.robot = robot_
         if self.robot == self.ROBOT_1:
             self.thresholds = [
-            [(63, 73, -1, 23, 9, 53)],  # Yellow Goal
-            [(39, 61, -37, -15, -42, 2)]] # Blue Goal
-            self.whitebal = (-6.02073, -5.753914, -0.2064142)
+            [(38, 58, -2, 27, 18, 50)],  # Yellow Goal
+            [(39, 51, -23, 7, -42, -17)]] # Blue Goal
+            self.whitebal = (-6.02073, -5.753914, -0.4892338)
             self.window = (55, 0, 240, 240)
-            self.max_rad = 120
-            self.CENTREX = 120
+            self.max_rad = 140
+            self.CENTREX = 160 #120
             self.CENTREY = 120
 
         elif self.robot == self.robot_2:
@@ -40,16 +40,16 @@ class Scan():
         sensor.reset()
         sensor.set_pixformat(sensor.RGB565)
         sensor.set_framesize(sensor.QVGA)
-        sensor.set_windowing(self.window)
+        #sensor.set_windowing(self.window)
         sensor.skip_frames(time=1000)
 
         # - Balance - #
         sensor.set_auto_whitebal(False, rgb_gain_db=self.whitebal)
-        sensor.set_brightness(3)
+        sensor.set_brightness(0)
         sensor.set_contrast(3)
-        sensor.set_saturation(2)
+        sensor.set_saturation(3)
         curr_exposure = sensor.get_exposure_us()
-        sensor.set_auto_exposure(False, exposure_us=int(curr_exposure*0.5))
+        sensor.set_auto_exposure(False, exposure_us=int(curr_exposure*1))
         curr_gain = sensor.get_gain_db()
         sensor.set_auto_gain(False, gain_db=curr_gain)
         sensor.set_auto_gain(False, gain_db=15)
@@ -150,9 +150,9 @@ while True:
 
 
     #scanner.whiteBal() #Print white balance value
-    scanner.screenShot(True) #Display radius & cross
-    data = scanner.findData(True) #Draw lines and boxs around blobs
-    sender.sendData(data, True) #Print angle and distance
+    scanner.screenShot(False) #Display radius & cross
+    data = scanner.findData(False) #Draw lines and boxs around blobs
+    sender.sendData(data, False) #Print angle and distance
 
 
     #LED(2).toggle() #Flashes Green LED

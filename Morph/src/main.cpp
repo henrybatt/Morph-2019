@@ -163,7 +163,7 @@ void calculateOrbit(){
     double angleAddition = ballAngleDifference * distanceMultiplier;
     movement.direction =  Tssps.ballVisible ? mod(Tssps.getAngle() + angleAddition, 360) : -1;
     movement.speed = ORBIT_SLOW_SPEED + (double)(ORBIT_FAST_SPEED - ORBIT_SLOW_SPEED) * (1.0 - (double)abs(angleAddition) / 90.0);
-    // Serial.printf("Tssp Angle: %i, Movement Direction %f \n",Tssps.getAngle(),movement.direction);
+    Serial.printf("Tssp Angle: %i, Movement Direction %f \n",Tssps.getAngle(),movement.direction);
 }
 
 void stopLine(){

@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#define ROBOT 1 //1 or 0, 1 = A
+#define ROBOT 0 //1 or 0, 1 = A
 #define ATTACK_GOAL_YELLOW true //true = Yellow, false = Blue
 #define GOAL_TRACK false
 
@@ -41,8 +41,8 @@
 #define OVER_LINE_SPEED 200
 
 #define MOTOR_NUM 4
-#define ORBIT_FAST_SPEED 100
-#define ORBIT_SLOW_SPEED 50
+#define ORBIT_FAST_SPEED 150
+#define ORBIT_SLOW_SPEED 125
 #define LINE_SPEED_FAST 100
 #define LINE_SPEED_SLOW 50
 

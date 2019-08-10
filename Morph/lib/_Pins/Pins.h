@@ -47,7 +47,7 @@
 #define LS_24 16
 #define LS_25 24
 #define LS_26 25
-#define LS_27 26
+#define LS_27 27
 #define LS_28 27
 #define LS_29 28
 #define LS_30 29

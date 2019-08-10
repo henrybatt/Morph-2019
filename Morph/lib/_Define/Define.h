@@ -41,10 +41,10 @@
 #define OVER_LINE_SPEED 200
 
 #define MOTOR_NUM 4
-#define ORBIT_FAST_SPEED 100
-#define ORBIT_SLOW_SPEED 50
-#define LINE_SPEED_FAST 100
-#define LINE_SPEED_SLOW 50
+#define ORBIT_FAST_SPEED 175
+#define ORBIT_SLOW_SPEED 200
+#define LINE_SPEED_FAST 150
+#define LINE_SPEED_SLOW 100
 
 
 // --- IR Sensors --- //

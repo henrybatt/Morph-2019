@@ -125,7 +125,7 @@ void calculateLineAvoidance(){
                 }
             } else {
                 //On line still
-                if (smallestAngleBetween(lineInfo.angle, angle) <= 90){
+                if (smallestAngleBetween(lineInfo.angle, angle) <= 100){
                     lineInfo.angle = angle;
                     lineInfo.size = 1;
                     // lineInfo.size = size;
@@ -155,7 +155,6 @@ void calculateLineAvoidance(){
     // Serial.printf("Light Angle: %f, Line Angle: %f, Line Size: %f, Movement Direction: %f   \n  ",LightArray.getLineAngle(),lineInfo.angle,lineInfo.size,movement.direction); 
 }
 
-
 void calculateOrbit(){
     double value = Tssps.getAngle() > 180 ? Tssps.getAngle() - 360 : Tssps.getAngle();
     double ballAngleDifference = findSign(value) * fmin(90, 0.4 * pow(MATH_E, 0.15 * smallestAngleBetween(Tssps.getAngle(), 0)));
@@ -166,7 +165,6 @@ void calculateOrbit(){
     movement.speed = ORBIT_SLOW_SPEED + (double)(ORBIT_FAST_SPEED - ORBIT_SLOW_SPEED) * (1.0 - (double)abs(angleAddition) / 90.0);
     // Serial.printf("Tssp Angle: %i, Movement Direction %f \n",Tssps.getAngle(),movement.direction);
 }
-
 
 void stopLine(){
     if (LightArray.getLineAngle() != NO_LINE_ANGLE){
@@ -179,7 +177,7 @@ void stopLine(){
 }
 
 void attack(){
-    #if GOAL_TRACK:
+    #if GOAL_TRACK
         Cam.goalTrack();
     #endif
 
@@ -235,12 +233,13 @@ void defend(){
 }
 
 void calculateMovement(){
-    if (isAttack()){
-        attack();
-    } else {
-        defend();
-    }
-    
+    // if (isAttack()){
+    //     attack();
+    // } else {
+    //     defend();
+    // }
+    calculateOrbit();
+
     calculateLineAvoidance();
     // stopLine();
 
@@ -251,6 +250,13 @@ void calculateMovement(){
     } else {
         movement.correction = round(headingPID.update(doubleMod(Compass.heading + 180, 360) - 180, 0));
     }
+
+    if (!Tssps.ballVisible){
+        if(lineInfo.size == 0){
+            movement.speed = 0;
+        }
+    }
+
 }
 
 void setup(){
@@ -281,7 +287,8 @@ void loop(){
 
     Motor.Move(movement.direction, movement.correction, movement.speed);
 
-
+    // Serial.println(lineInfo.angle);
+// 
     if (attackLEDTimer.timeHasPassed()){
         digitalWrite(LED_BUILTIN, ledOn);
         ledOn = !ledOn;

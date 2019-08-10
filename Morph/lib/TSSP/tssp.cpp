@@ -24,6 +24,7 @@ void Tssp::read(){
 
 void Tssp::updateOnce(){
     for (int i = 0; i < TSSP_NUM; i++){
+        if(!ROBOT &&(i == 1 || i == 5 || i == 15 || i == 16)) continue;
         tempValues[i] += 1 - digitalRead(tsspPins[i]);
     }
     tsspCounter++;

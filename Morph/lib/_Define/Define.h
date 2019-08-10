@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#define ROBOT 1 //1 or 0
+#define ROBOT 1 //1 or 0, 1 = A
 #define ATTACK_GOAL_YELLOW true //true = Yellow, false = Blue
 #define GOAL_TRACK false
 
@@ -48,11 +48,8 @@
 
 
 // --- IR Sensors --- //
-#if ROBOT
-    #define TSSP_NUM 18
-#else 
-    #define TSSP_NUM 16
-#endif
+
+#define TSSP_NUM 18
 
 // #define TSSP_NUM 18//18
 #define TSSP_NO_BALL 400

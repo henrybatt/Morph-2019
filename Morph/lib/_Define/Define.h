@@ -19,7 +19,7 @@
 
 // --- Light Sensors --- //
 
-#define LS_BUFFER 200
+#define LS_BUFFER 300
 #define LS_INTERVAL_ANGLE 11.25
 #define LS_RADIUS 54
 #define LS_AVOID_SIZE 1

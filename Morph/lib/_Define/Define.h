@@ -10,12 +10,11 @@
 
 // --- Camera --- //
 
-#define cameraSerial Serial4
-#define CAM_BUFFER_NUM 7
-#define CAM_START_NUM 255
-#define CAM_IMAGE_WIDTH 320
-#define CAM_IMAGE_HEIGHT 240
-#define CAM_NO_DATA 250
+#define CAM_SERIAL Serial4
+#define CAM_DATA_LENGTH 7
+#define CAM_CENTRE_X 79
+#define CAM_CENTRE_Y 67
+#define CAM_BEGIN_BYTE 0xB
 
 // --- Light Sensors --- //
 
@@ -41,8 +40,8 @@
 #define OVER_LINE_SPEED 200
 
 #define MOTOR_NUM 4
-#define ORBIT_FAST_SPEED 175
-#define ORBIT_SLOW_SPEED 200
+#define ORBIT_FAST_SPEED 255
+#define ORBIT_SLOW_SPEED 255
 #define LINE_SPEED_FAST 150
 #define LINE_SPEED_SLOW 100
 

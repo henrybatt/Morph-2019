@@ -14,15 +14,17 @@ class Coord {
         Coord(double x, double y) : x(x), y(y) {}
 
         double getAngle(){
+            // --- Find angle to coord --- // 
             return doubleMod(90 - radiansToDegrees(atan2(y, x)), 360);
         }
 
         double getMagnitude(){
+            // --- Calculate magnitude --- //
             return sqrt(x * x + y * y);
         }
 
         void getCartesian(double angle, double magnitude){
-            //Convert from polar to cartesian form.
+            // --- Convert from polar to cartesian form --- //
             double pAngle = doubleMod(90 - angle, 360);
 
             x = magnitude * cos(degreesToRadians(pAngle));
@@ -30,16 +32,10 @@ class Coord {
         }
 
         Coord subtract(Coord other){
+            // --- Subtract two coords from eachother --- //
             return Coord(x - other.x, y - other.y);
         }
 
-        
-        // Coord operator-(const Coord &rhs){
-        //     return Coord(x-rhs.x, y-rhs.y);
-        // }
-        // void Coord::subtract(Coord other){
-
-        // }
 
     double x;
     double y;

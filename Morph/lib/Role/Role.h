@@ -4,6 +4,7 @@
 #include "Arduino.h"
 #include <MotorController.h>
 #include <Motors.h>
+#include <Compass.h>
 #include <Tssp.h>
 
 class Role {

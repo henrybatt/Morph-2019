@@ -46,65 +46,40 @@ double angleMap(double angle, double max);
 
 //int max(int x, int y);
 
+
+// --- Structures --- //
 struct Vector3D {
   double x;
   double y;
   double z;
 };
 
-struct DirSpeed {
-    double direction;
+struct MoveData {
+    double angle;
     double speed;
     double correction;
 };
 
 
+struct LineData {
+    double angle;
+    double size;
+    bool onField;
+};
 
+struct BallData{
+    double angle;
+    double strength;
+    bool exist;
+    bool isOut;
+    bool isSecured;
+};
 
-#define TSSP_MAX_IGNORE 256
-#define TSSP_MIN_IGNORE 0
-#define TSSP_READ_NUM 255
-#define TSSP_INTERVAL_ANGLE 20
-#define BALL_CLOSE_STRENGTH 140
-
-#define TSSP_X_0 0 // 0
-#define TSSP_X_1 0.34202
-#define TSSP_X_2 0.642788
-#define TSSP_X_3 0.866025
-#define TSSP_X_4 0.984808
-#define TSSP_X_5 0.984808
-#define TSSP_X_6 0.866025
-#define TSSP_X_7 0.642788
-#define TSSP_X_8 0.34202
-#define TSSP_X_9 0
-#define TSSP_X_10 -0.34202
-#define TSSP_X_11 -0.642788
-#define TSSP_X_12 -0.866025
-#define TSSP_X_13 -0.984808
-#define TSSP_X_14 -0.984808
-#define TSSP_X_15 -0.866025
-#define TSSP_X_16 -0.642788
-#define TSSP_X_17 -0.34202
-
-#define TSSP_Y_0 1
-#define TSSP_Y_1 0.939693
-#define TSSP_Y_2 0.766044
-#define TSSP_Y_3 0.5
-#define TSSP_Y_4 0.173648
-#define TSSP_Y_5 -0.173648
-#define TSSP_Y_6 -0.5
-#define TSSP_Y_7 -0.766044
-#define TSSP_Y_8 -0.939693
-#define TSSP_Y_9 -1
-#define TSSP_Y_10 -0.939693
-#define TSSP_Y_11 -0.766044
-#define TSSP_Y_12 -0.5
-#define TSSP_Y_13 -0.173648
-#define TSSP_Y_14 0.173648
-#define TSSP_Y_15 0.5
-#define TSSP_Y_16 0.766044
-#define TSSP_Y_17 0.93963
-
+enum Mode: uint8_t{
+    attack,
+    defend,
+    undecided
+};
 
 // --- PID --- //
 
@@ -118,15 +93,15 @@ struct DirSpeed {
 #define HEADING_KD 0.3
 #define HEADING_MAX_CORRECTION 255
 
-#define X_MOVEMENT_KP 5
+#define X_MOVEMENT_KP 8
 #define X_MOVEMENT_KI 0
-#define X_MOVEMENT_KD 0.3
-#define X_MOVEMENT_MAX 100
+#define X_MOVEMENT_KD 0.6
+#define X_MOVEMENT_MAX 200
 
-#define Y_MOVEMENT_KP 10
+#define Y_MOVEMENT_KP 5
 #define Y_MOVEMENT_KI 0
 #define Y_MOVEMENT_KD 0.1
-#define Y_MOVEMENT_MAX 100
+#define Y_MOVEMENT_MAX 80
 
 
 #define TO_COORD_KP 1.5
@@ -134,9 +109,13 @@ struct DirSpeed {
 #define TO_COORD_KD 0
 #define TO_COORD_MAX_SPEED 100
 
-#define GOAL_TRACK_KP 2
-#define GOAL_TRACK_KI 0
-#define GOAL_TRACK_KD 0.2
-#define GOAL_TRACK_MAX_CORRECTION 150
+#define ATTACK_GOAL_TRACK_KP 2
+#define ATTACK_GOAL_TRACK_KI 0
+#define ATTACK_GOAL_TRACK_KD 0.7
+#define ATTACK_GOAL_TRACK_MAX_CORRECTION 150
 
+#define DEFEND_GOAL_TRACK_KP 2
+#define DEFEND_GOAL_TRACK_KI 0
+#define DEFEND_GOAL_TRACK_KD 0.7
+#define DEFEND_GOAL_TRACK_MAX_CORRECTION 150
 #endif

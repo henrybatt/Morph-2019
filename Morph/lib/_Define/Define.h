@@ -4,7 +4,7 @@
 #include <Arduino.h>
 
 #define ROBOT 0 //1 or 0, 1 = A
-#define ATTACK_GOAL_YELLOW false //true = Yellow, false = Blue
+#define ATTACK_GOAL_YELLOW true //true = Yellow, false = Blue
 #define GOAL_TRACK true
 
 
@@ -105,18 +105,18 @@
 
 
 // --- Defender --- //
-#define DEFEND_DISTANCE 70
+#define DEFEND_DISTANCE 55
 #define DEFEND_DISTANCE_CM 20 //Distance from goal in CM to sit at
 
-#define DEFEND_SURGE_STRENGTH 150 // Strength of ball to surge
+#define DEFEND_SURGE_STRENGTH 170 // Strength of ball to surge
 
 #define DEFEND_CAPTURE_ANGLE 20 // Angle range of ball to surge
 
-#define DEFEND_SURGE_DISTANCE 90 // Distance from goal to surge till
+#define DEFEND_SURGE_DISTANCE 65 // Distance from goal to surge till
 #define DEFEND_SURGE_Y -30
 
 // --- Attacker --- //
-#define ATTACK_IDLE_DISTANCE 85 // Distance from defending goal to sit at when no ball
+#define ATTACK_IDLE_DISTANCE 75 // Distance from defending goal to sit at when no ball
 
 #define ATTACK_SURGE_STRENGTH 150 // Strength of ball to surge 
 

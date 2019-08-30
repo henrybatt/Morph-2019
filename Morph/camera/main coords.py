@@ -18,9 +18,9 @@ class Scan():
         self.robot = robot_
         if self.robot == self.ROBOT_1:
             self.thresholds = [
-            [(38, 58, -2, 27, 18, 50)],  # Yellow Goal
+            [(56, 72, -15, 6, 22, 64)],  # Yellow Goal
             [(39, 51, -23, 7, -42, -17)]] # Blue Goal
-            self.whitebal = (-6.02073, -5.753914, -0.4892338)
+            self.whitebal = (-6.02073, -5.623446, 0.9007286)
             self.window = (55, 0, 240, 240)
             self.max_rad = 140
             self.CENTREX = 160 #120

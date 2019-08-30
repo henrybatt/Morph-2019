@@ -104,8 +104,7 @@ void calculateDefenseMovement(){
             if (angleIsInside(360 - DEFEND_CAPTURE_ANGLE, DEFEND_CAPTURE_ANGLE, ballInfo.angle) && ballInfo.strength > DEFEND_SURGE_STRENGTH && Cam.defend.distance < DEFEND_SURGE_DISTANCE){
                 // Ball infront of robot, surge forwards
                 calculateOrbit();
-                Cam.defend.face = false; // Stop correcting to goal
-
+                
             } else if (!angleIsInside(270, 90, ballInfo.angle)){
                 // Ball behind robot
                 calculateOrbit();
@@ -121,8 +120,9 @@ void calculateDefenseMovement(){
         } else {
             // No ball, centre to goal
             centre(DEFEND_DISTANCE);
-        }   
-
+            // moveInfo.angle = -1;
+            // moveInfo.speed = 0;
+       }
     } else {
         if (ballInfo.exist){
             // No goal, become attacker
@@ -133,7 +133,6 @@ void calculateDefenseMovement(){
             // No goal or ball, stop in place
             moveInfo.angle = -1;
             moveInfo.speed = 0;
-            Cam.defend.face = false; // Stop correcting to goal
         }
     }
 
@@ -168,6 +167,8 @@ void calculateMovement(){
 
     moveInfo = LightArray.calculateOutAvoidance(Compass.heading, moveInfo); // Updates movement with state of line.
 
+    Serial.println(lineInfo.angle);
+
     calculateCorrection(); // Update correction value based on goal correction state
 
 
@@ -195,6 +196,7 @@ void setup(){
 
     defaultMode = ROBOT ? Mode::attack : Mode::defend;
 
+    // delay(1500);
 }
 
 
@@ -214,7 +216,7 @@ void loop(){
     ballInfo = Tssps.getBallData();
     lineInfo = LightArray.getLineData();
 
-    playMode = Mode::undecided; // Manual playMode set
+    playMode = Mode::attack; // Manual playMode set
 
     // calculatePosition(); // Calculates robot's postion on field in cartesian corrdinates
     calculateMovement(); //Calculate movement values 

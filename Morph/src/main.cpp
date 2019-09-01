@@ -16,7 +16,6 @@ PID headingPID(HEADING_KP, HEADING_KI, HEADING_KD, HEADING_MAX_CORRECTION);
 PID attackGoalTrackPID(ATTACK_GOAL_TRACK_KP, ATTACK_GOAL_TRACK_KI, ATTACK_GOAL_TRACK_KD, ATTACK_GOAL_TRACK_MAX_CORRECTION);
 PID defendGoalTrackPID(DEFEND_GOAL_TRACK_KP, DEFEND_GOAL_TRACK_KI, DEFEND_GOAL_TRACK_KD, DEFEND_GOAL_TRACK_MAX_CORRECTION);
 
-
 PID coordPID(TO_COORD_KP, TO_COORD_KI, TO_COORD_KD, TO_COORD_MAX_SPEED);
 
 PID xPID(X_MOVEMENT_KP, X_MOVEMENT_KI, X_MOVEMENT_KD, X_MOVEMENT_MAX);
@@ -167,10 +166,7 @@ void calculateMovement(){
 
     moveInfo = LightArray.calculateOutAvoidance(Compass.heading, moveInfo); // Updates movement with state of line.
 
-    Serial.println(lineInfo.angle);
-
     calculateCorrection(); // Update correction value based on goal correction state
-
 
 }
 
@@ -196,7 +192,6 @@ void setup(){
 
     defaultMode = ROBOT ? Mode::attack : Mode::defend;
 
-    // delay(1500);
 }
 
 

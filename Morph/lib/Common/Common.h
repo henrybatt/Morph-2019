@@ -93,16 +93,15 @@ enum Mode: uint8_t{
 #define HEADING_KD 0.3
 #define HEADING_MAX_CORRECTION 255
 
-#define X_MOVEMENT_KP 8
+#define X_MOVEMENT_KP 8 //5
 #define X_MOVEMENT_KI 0
 #define X_MOVEMENT_KD 0.6
-#define X_MOVEMENT_MAX 200
+#define X_MOVEMENT_MAX 150
 
-#define Y_MOVEMENT_KP 5
+#define Y_MOVEMENT_KP 5 //8
 #define Y_MOVEMENT_KI 0
-#define Y_MOVEMENT_KD 0.1
-#define Y_MOVEMENT_MAX 80
-
+#define Y_MOVEMENT_KD 0.1 //0.3
+#define Y_MOVEMENT_MAX 150
 
 #define TO_COORD_KP 1.5
 #define TO_COORD_KI 0
@@ -111,7 +110,7 @@ enum Mode: uint8_t{
 
 #define ATTACK_GOAL_TRACK_KP 2
 #define ATTACK_GOAL_TRACK_KI 0
-#define ATTACK_GOAL_TRACK_KD 0.7
+#define ATTACK_GOAL_TRACK_KD 1.9 //0.7
 #define ATTACK_GOAL_TRACK_MAX_CORRECTION 150
 
 #define DEFEND_GOAL_TRACK_KP 2

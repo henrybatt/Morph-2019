@@ -68,7 +68,6 @@ void LightSensorArray::update(float heading){
 void LightSensorArray::calculateClusters() {
     // Finds clusters of activated lightsensors
 
-
     // Reset Values
     numClusters = 0;
     findClusterStart = 1;

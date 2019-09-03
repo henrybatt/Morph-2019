@@ -54,6 +54,7 @@ void centre(int idleDist){
         double ymoveInfo = -yPID.update(Cam.defend.distance * cos(degreesToRadians(goalAngle)), idleDist);
         moveInfo.angle = doubleMod(radiansToDegrees(atan2(xmoveInfo, ymoveInfo)) - Compass.heading + 180, 360);
         moveInfo.speed = sqrt(pow(xmoveInfo,2) + pow(ymoveInfo,2));
+
     }
 }
 
@@ -211,12 +212,13 @@ void loop(){
     ballInfo = Tssps.getBallData();
     lineInfo = LightArray.getLineData();
 
-    playMode = Mode::attack; // Manual playMode set
+    playMode = Mode::defend; // Manual playMode set
 
     // calculatePosition(); // Calculates robot's postion on field in cartesian corrdinates
     calculateMovement(); //Calculate movement values 
 
     Motor.Move(moveInfo.angle, moveInfo.correction, moveInfo.speed); // Move towards target
+    // Motor.Move(0, moveInfo.correction, 0); // Move towards target
 
     // Flash LED based off Timer & playMode
     if (playMode == Mode::attack && attackLEDTimer.timeHasPassed()){

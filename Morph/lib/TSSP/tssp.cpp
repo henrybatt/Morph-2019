@@ -13,7 +13,7 @@ void TSSP::read(){
 
     for (int j = 0; j < TSSP_READ_NUM; j++){
         for (int i = 0; i < TSSP_NUM; i++){
-            if( !ROBOT &&(i == 5 || i == 11 || i == 13 || i== 15 || i == 16)) continue;
+            if( !ROBOT &&(i == 1 || i == 3 || i == 5 || i == 11 || i == 13 || i== 15 || i == 16)) continue;
             readValues[i] += 1 - digitalRead(pins[i]);
         }
     }

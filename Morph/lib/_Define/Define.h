@@ -4,13 +4,13 @@
 #include <Arduino.h>
 
 #define ROBOT 0 //1 or 0, 1 = A
-#define ATTACK_GOAL_YELLOW true //true = Yellow, false = Blue
+#define ATTACK_GOAL_YELLOW false //true = Yellow, false = Blue
 #define GOAL_TRACK true
 
 
 // --- Movement Speed --- //
-#define ORBIT_FAST_SPEED 160 // Vertical movement of orbit
-#define ORBIT_SLOW_SPEED 140 // Horizontal movement
+#define ORBIT_FAST_SPEED 180 // Vertical movement of orbit
+#define ORBIT_SLOW_SPEED 150 // Horizontal movement
 
 #define LINE_OVER_SPEED 120 // Speed when all the way off line
 #define LINE_SPEED 100 //75 // Modular speed to cross over line (2 times min, half max)
@@ -105,14 +105,14 @@
 
 
 // --- Defender --- //
-#define DEFEND_DISTANCE 55
+#define DEFEND_DISTANCE 50
 #define DEFEND_DISTANCE_CM 20 //Distance from goal in CM to sit at
 
 #define DEFEND_SURGE_STRENGTH 170 // Strength of ball to surge
 
 #define DEFEND_CAPTURE_ANGLE 20 // Angle range of ball to surge
 
-#define DEFEND_SURGE_DISTANCE 65 // Distance from goal to surge till
+#define DEFEND_SURGE_DISTANCE 60 // Distance from goal to surge till
 #define DEFEND_SURGE_Y -30
 
 // --- Attacker --- //

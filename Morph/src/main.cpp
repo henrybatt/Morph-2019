@@ -3,7 +3,6 @@
 #include <Common.h>
 #include <PID.h>
 #include <Timer.h>
-// #include <IMU.h>
 #include <bno055.h>
 #include <bno055_driver.h>
 #include <MotorController.h>
@@ -30,7 +29,6 @@ Timer defenceLEDTimer(400000);
 
 bool ledOn = false;
 
-// IMU Compass;
 MotorController Motor;
 TSSP Tssps;
 LightArrayVector LightVector;
@@ -48,19 +46,17 @@ Mode defaultMode;
 
 struct bno055_t bno055 = {0};
 s16 yawRaw = 0;
-float yaw = 0.0f;
 float heading;
-double bnoCorrection;
 
 
 void centre(int idleDist){
     // --- Centre to goal, idleDist away --- //
 
     if (Cam.defend.exist){
-        double goalAngle = doubleMod(Cam.defend.angle + bnoCorrection, 360);
+        double goalAngle = doubleMod(Cam.defend.angle + heading, 360);
         double xmoveInfo = -xPID.update(Cam.defend.distance * sin(degreesToRadians(goalAngle)), 0);
         double ymoveInfo = -yPID.update(Cam.defend.distance * cos(degreesToRadians(goalAngle)), idleDist);
-        moveInfo.angle = doubleMod(radiansToDegrees(atan2(xmoveInfo, ymoveInfo)) - bnoCorrection + 180, 360);
+        moveInfo.angle = doubleMod(radiansToDegrees(atan2(xmoveInfo, ymoveInfo)) - heading + 180, 360);
         moveInfo.speed = sqrt(pow(xmoveInfo,2) + pow(ymoveInfo,2));
 
     }
@@ -107,6 +103,8 @@ void calculateAttackMovement(){
 void calculateDefenseMovement(){
     // --- Calculate direction to move to intercept ball --- //
 
+    Serial.println("Defend");
+
     if (Cam.defend.exist){
         if (ballInfo.exist){
             if (angleIsInside(360 - DEFEND_CAPTURE_ANGLE, DEFEND_CAPTURE_ANGLE, ballInfo.angle) && ballInfo.strength > DEFEND_SURGE_STRENGTH && Cam.defend.distance < DEFEND_SURGE_DISTANCE){
@@ -151,15 +149,15 @@ void calculateCorrection(){
     //Correction state. Either Goal or Compass
 
     if (Cam.attack.face && playMode == Mode::attack){ // Correct to attack goal
-        double goalAngle = doubleMod(Cam.attack.angle + bnoCorrection, 360);
-            moveInfo.correction = round(attackGoalTrackPID.update(doubleMod(doubleMod(bnoCorrection - goalAngle, 360) + 180, 360) - 180, 0));
+        double goalAngle = doubleMod(Cam.attack.angle + heading, 360);
+            moveInfo.correction = round(attackGoalTrackPID.update(doubleMod(doubleMod(heading - goalAngle, 360) + 180, 360) - 180, 0));
 
     } else if (Cam.defend.face && playMode == Mode::defend){ // Correct to defend goal
-            double goalAngle = doubleMod(Cam.defend.angle + bnoCorrection, 360);
-        moveInfo.correction = round(defendGoalTrackPID.update(doubleMod(doubleMod(bnoCorrection - goalAngle, 360) + 180, 360) - 180, 0));
+            double goalAngle = doubleMod(Cam.defend.angle + heading, 360);
+        moveInfo.correction = round(defendGoalTrackPID.update(doubleMod(doubleMod(heading - goalAngle, 360) + 180, 360) - 180, 0));
 
     } else { // Compass correct
-        moveInfo.correction = round(headingPID.update(doubleMod(bnoCorrection + 180, 360) - 180, 0));
+        moveInfo.correction = round(headingPID.update(doubleMod(heading + 180, 360) - 180, 0));
     }
 }
 
@@ -173,7 +171,7 @@ void calculateMovement(){
         calculateDefenseMovement();
     }
 
-    moveInfo = LightArray.calculateOutAvoidance(bnoCorrection, moveInfo); // Updates movement with state of line.
+    moveInfo = LightArray.calculateOutAvoidance(heading, moveInfo); // Updates movement with state of line.
 
     calculateCorrection(); // Update correction value based on goal correction state
 
@@ -185,7 +183,6 @@ void calculateMovement(){
 // }
 
 void bnoInit(){
-
     // setup BNO055 driver
     bno055.bus_read = bno055_read;
     bno055.bus_write = bno055_write;
@@ -203,19 +200,24 @@ void bnoInit(){
     } else {
         Serial.printf("BNO055 init error: %d\n", result);
     }
+    
+    Serial.println("BNO");
+
 }
 
 
 void setup(){
+
+
+    delay(6000);
+    Serial.println("Ser");
+
     // --- Setup Libraries and Variables --- //
 
     pinMode(LED_BUILTIN, OUTPUT); //Setup Teensy LED
     digitalWrite(LED_BUILTIN, HIGH);
 
-    bno055_convert_float_euler_h_deg(&heading);
-
     // Initalise libraries
-    // Compass.init();
     bnoInit();
     Motor.init();
     Tssps.init();
@@ -229,16 +231,13 @@ void setup(){
 
 
 void loop(){
-    // --- Read libraries and calculate values --- //
+    // --- Read libraries and calculate values --- // 
 
-    // Calculate bno  correction
-    bno055_convert_float_euler_h_deg(&yaw);
-    bnoCorrection = heading - yaw;
 
     // Read from libraries to find data
-    // Compass.read();
+    bno055_convert_float_euler_h_deg(&heading);
     Tssps.read();
-    LightArray.update(bnoCorrection);
+    LightArray.update(heading);
 
     #if GOAL_TRACK // If using camera, update, else don't bother 
         Cam.update(); // Read Cam data

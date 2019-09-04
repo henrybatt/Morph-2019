@@ -3,7 +3,9 @@
 #include <Common.h>
 #include <PID.h>
 #include <Timer.h>
-#include <IMU.h>
+// #include <IMU.h>
+#include <bno055.h>
+#include <bno055_driver.h>
 #include <MotorController.h>
 #include <TSSP.h>
 #include <LightArrayVector.h>
@@ -28,7 +30,7 @@ Timer defenceLEDTimer(400000);
 
 bool ledOn = false;
 
-IMU Compass;
+// IMU Compass;
 MotorController Motor;
 TSSP Tssps;
 LightArrayVector LightVector;
@@ -44,15 +46,21 @@ MoveData moveInfo;
 Mode playMode = Mode::undecided;
 Mode defaultMode;
 
+struct bno055_t bno055 = {0};
+s16 yawRaw = 0;
+float yaw = 0.0f;
+float heading;
+double bnoCorrection;
+
 
 void centre(int idleDist){
     // --- Centre to goal, idleDist away --- //
 
     if (Cam.defend.exist){
-        double goalAngle = doubleMod(Cam.defend.angle + Compass.heading, 360);
+        double goalAngle = doubleMod(Cam.defend.angle + bnoCorrection, 360);
         double xmoveInfo = -xPID.update(Cam.defend.distance * sin(degreesToRadians(goalAngle)), 0);
         double ymoveInfo = -yPID.update(Cam.defend.distance * cos(degreesToRadians(goalAngle)), idleDist);
-        moveInfo.angle = doubleMod(radiansToDegrees(atan2(xmoveInfo, ymoveInfo)) - Compass.heading + 180, 360);
+        moveInfo.angle = doubleMod(radiansToDegrees(atan2(xmoveInfo, ymoveInfo)) - bnoCorrection + 180, 360);
         moveInfo.speed = sqrt(pow(xmoveInfo,2) + pow(ymoveInfo,2));
 
     }
@@ -143,15 +151,15 @@ void calculateCorrection(){
     //Correction state. Either Goal or Compass
 
     if (Cam.attack.face && playMode == Mode::attack){ // Correct to attack goal
-        double goalAngle = doubleMod(Cam.attack.angle + Compass.heading, 360);
-            moveInfo.correction = round(attackGoalTrackPID.update(doubleMod(doubleMod(Compass.heading - goalAngle, 360) + 180, 360) - 180, 0));
+        double goalAngle = doubleMod(Cam.attack.angle + bnoCorrection, 360);
+            moveInfo.correction = round(attackGoalTrackPID.update(doubleMod(doubleMod(bnoCorrection - goalAngle, 360) + 180, 360) - 180, 0));
 
     } else if (Cam.defend.face && playMode == Mode::defend){ // Correct to defend goal
-            double goalAngle = doubleMod(Cam.defend.angle + Compass.heading, 360);
-        moveInfo.correction = round(defendGoalTrackPID.update(doubleMod(doubleMod(Compass.heading - goalAngle, 360) + 180, 360) - 180, 0));
+            double goalAngle = doubleMod(Cam.defend.angle + bnoCorrection, 360);
+        moveInfo.correction = round(defendGoalTrackPID.update(doubleMod(doubleMod(bnoCorrection - goalAngle, 360) + 180, 360) - 180, 0));
 
     } else { // Compass correct
-        moveInfo.correction = round(headingPID.update(doubleMod(Compass.heading + 180, 360) - 180, 0));
+        moveInfo.correction = round(headingPID.update(doubleMod(bnoCorrection + 180, 360) - 180, 0));
     }
 }
 
@@ -165,7 +173,7 @@ void calculateMovement(){
         calculateDefenseMovement();
     }
 
-    moveInfo = LightArray.calculateOutAvoidance(Compass.heading, moveInfo); // Updates movement with state of line.
+    moveInfo = LightArray.calculateOutAvoidance(bnoCorrection, moveInfo); // Updates movement with state of line.
 
     calculateCorrection(); // Update correction value based on goal correction state
 
@@ -176,15 +184,39 @@ void calculateMovement(){
 
 // }
 
+void bnoInit(){
+
+    // setup BNO055 driver
+    bno055.bus_read = bno055_read;
+    bno055.bus_write = bno055_write;
+    bno055.delay_msec = bno055_delay_ms;
+    bno055.dev_addr = BNO055_I2C_ADDR2;
+
+    s8 result = bno055_init(&bno055);
+    result += bno055_set_power_mode(BNO055_POWER_MODE_NORMAL);
+    // see page 22 of the datasheet, Section 3.3.1
+    // we don't use NDOF or NDOF_FMC_OFF because it has a habit of snapping to magnetic north which is undesierable
+    // instead we use IMUPLUS (acc + gyro fusion) if there is magnetic interference, otherwise M4G (basically relative mag)
+    result += bno055_set_operation_mode(BNO055_OPERATION_MODE_IMUPLUS);
+    if (result == 0){
+        Serial.println("BNO055 initialised");
+    } else {
+        Serial.printf("BNO055 init error: %d\n", result);
+    }
+}
+
 
 void setup(){
     // --- Setup Libraries and Variables --- //
 
     pinMode(LED_BUILTIN, OUTPUT); //Setup Teensy LED
     digitalWrite(LED_BUILTIN, HIGH);
-    
+
+    bno055_convert_float_euler_h_deg(&heading);
+
     // Initalise libraries
-    Compass.init();
+    // Compass.init();
+    bnoInit();
     Motor.init();
     Tssps.init();
     LightVector.init();
@@ -199,10 +231,14 @@ void setup(){
 void loop(){
     // --- Read libraries and calculate values --- //
 
+    // Calculate bno  correction
+    bno055_convert_float_euler_h_deg(&yaw);
+    bnoCorrection = heading - yaw;
+
     // Read from libraries to find data
-    Compass.read();
+    // Compass.read();
     Tssps.read();
-    LightArray.update(Compass.heading);
+    LightArray.update(bnoCorrection);
 
     #if GOAL_TRACK // If using camera, update, else don't bother 
         Cam.update(); // Read Cam data

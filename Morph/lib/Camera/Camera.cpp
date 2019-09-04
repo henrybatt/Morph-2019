@@ -41,6 +41,7 @@ void Camera::read(){
     
 }
 
+
 void Camera::updateAttack(int angle, int distance, bool exist, double cm){
     // --- Updates goal info based on which way we are attacking --- //
     attack.angle = angle;
@@ -49,6 +50,7 @@ void Camera::updateAttack(int angle, int distance, bool exist, double cm){
     attack.cm = cm;
 }
 
+
 void Camera::updateDefend(int angle, int distance, bool exist, double cm){
     // --- Updates goal info based on which way we are attacking --- //
     defend.angle = mod(angle + 180, 360);
@@ -56,6 +58,7 @@ void Camera::updateDefend(int angle, int distance, bool exist, double cm){
     defend.exist = exist;
     defend.cm = cm;
 }
+
 
 void Camera::calc() {
     // --- Calculates goal angle and distance --- //
@@ -93,6 +96,7 @@ void Camera::calc() {
     #endif
 }
 
+
 bool Camera::newData(){
     // --- Determines if new data has come over cameraSerial --- //
     bool data = newCamData;
@@ -109,6 +113,7 @@ void Camera::update(){
         calc();
     }
 }
+
 
 void Camera::goalTrack(){
     // If attacking goal is visible faceGoal --- //
@@ -132,6 +137,7 @@ double Camera::closestDistance(){
     return 0;
 }
 
+
 double Camera::closestDistanceCentimeter(){
     // -- Find closest goal in centimeters --- //
     if(yellow.exist || blue.exist){
@@ -145,6 +151,7 @@ double Camera::closestDistanceCentimeter(){
     }
     return 0;
 }
+
 
 double Camera::centimeterDistance(int distance){
     // --- Convert pixels into CM with exponential function to postion on field --- //

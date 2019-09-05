@@ -1,14 +1,13 @@
 #include <Camera.h>
 
 void Camera::init(){
-    // Setup cameraSerial
     cameraSerial.begin(9600);
     newCamData = true;
+    read();
 }
 
 
 void Camera::read(){
-    // --- Read from camera serial to get x & y values of goals --- //
     if (cameraSerial.available() >= CAM_BUFFER_NUM) {
         if(cameraSerial.read() == CAM_START_NUM) {
             newCamData = true;
@@ -17,13 +16,13 @@ void Camera::read(){
                 camBuffer[i] = cameraSerial.read();
             }
 
-            yellow.x = camBuffer[0] - (CAM_IMAGE_WIDTH  / 2);
-            yellow.y = camBuffer[1] - (CAM_IMAGE_HEIGHT / 2);
-            yellow.exist = camBuffer[4];
+            yellow.x = camBuffer[0];
+            yellow.y = camBuffer[1];
+            yellow.visible = camBuffer[4];
 
-            blue.x = camBuffer[2] - (CAM_IMAGE_WIDTH / 2);
-            blue.y = camBuffer[3] - (CAM_IMAGE_HEIGHT / 2);
-            blue.exist = camBuffer[5];  
+            blue.x = camBuffer[2];
+            blue.y = camBuffer[3];
+            blue.visible = camBuffer[5];  
 
         }
     }
@@ -42,63 +41,57 @@ void Camera::read(){
 }
 
 
-void Camera::updateAttack(int angle, int distance, bool exist, double cm){
-    // --- Updates goal info based on which way we are attacking --- //
-    attack.angle = angle;
-    attack.distance = distance;
-    attack.exist = exist;
-    attack.cm = cm;
-}
-
-
-void Camera::updateDefend(int angle, int distance, bool exist, double cm){
-    // --- Updates goal info based on which way we are attacking --- //
-    defend.angle = mod(angle + 180, 360);
-    defend.distance = distance;
-    defend.exist = exist;
-    defend.cm = cm;
-}
-
-
 void Camera::calc() {
-    // --- Calculates goal angle and distance --- //
-    blue.exist = false;
 
-    yellow.angle = mod(450 - round(degrees(atan2(yellow.y, yellow.x))), 360);
-    yellow.distance = (sqrt(pow(yellow.x, 2) + pow(yellow.y, 2)));
-    yellow.cm = centimeterDistance(yellow.distance);
-
-    blue.angle = mod(450 - round(degrees(atan2(blue.y, blue.x))), 360);
-    blue.distance = (sqrt(pow(blue.x, 2) + pow(blue.y, 2)));
-    blue.cm = centimeterDistance(blue.distance);
+    blue.visible = false;
 
     #if ATTACK_GOAL_YELLOW
-        updateAttack(yellow.angle, yellow.distance, yellow.exist, yellow.cm);
-        updateDefend(blue.angle, blue.distance, blue.exist, blue.cm);
+        calculateGoal(&attack, yellow);
+        calculateGoal(&defend, blue);
     #else
-        updateAttack(blue.angle, blue.distance, blue.exist, blue.cm);
-        updateDefend(yellow.angle, yellow.distance, yellow.exist, yellow.cm);
+        calculateGoal(&attack, blue);
+        calculateGoal(&defend, yellow);
     #endif
 
     #if DEBUG_CAMERA
-        Serial.print("Yellow Angle: ");
-        Serial.print(yellow.angle);
-        Serial.print(", Yellow distance: ");
-        Serial.print(yellow.distance);
-        Serial.print(", Yellow Exist: ");
-        Serial.print(yellow.exist);
-        Serial.print(", Blue Angle: ");
-        Serial.print(blue.angle);
-        Serial.print(", Blue distance: ");
-        Serial.print(blue.distance);
-        Serial.print(", Blue Exist: ");
-        Serial.println(blue.exist);
+        Serial.print("Attack Angle: ");
+        Serial.print(attack.angle);
+        Serial.print(", Attack distance: ");
+        Serial.print(attack.distance);
+        Serial.print(", Attack visible: ");
+        Serial.print(attack.visible);
+        Serial.print(", Defend Angle: ");
+        Serial.print(defend.angle);
+        Serial.print(", Defend distance: ");
+        Serial.print(defend.distance);
+        Serial.print(", Defend visible: ");
+        Serial.println(defend.visible);
     #endif
+}
+
+
+void Camera::calculateGoal(goalData *goal, camImage image){
+    *goal = {calculateAngle(image), calculateDistance(image), image.visible, goal->face};
+}
+
+
+int Camera::calculateAngle(camImage image){
+    int x = image.x - (CAM_IMAGE_WIDTH / 2);
+    int y = image.y - (CAM_IMAGE_HEIGHT / 2);
+
+    return mod(450 - round(radiansToDegrees(atan2(y,x))), 360);
+}
+
+
+int Camera::calculateDistance(camImage image){
+    int x = image.x - (CAM_IMAGE_WIDTH / 2);
+    int y = image.y - (CAM_IMAGE_HEIGHT / 2);
+
+    return sqrt(x * x + y * y);
 }
 
 
 bool Camera::newData(){
-    // --- Determines if new data has come over cameraSerial --- //
     bool data = newCamData;
     newCamData = false;
 
@@ -107,7 +100,6 @@ bool Camera::newData(){
 
 
 void Camera::update(){
-    // --- Read Camera data and update angles and distances --- //
     read();
     if (newData()){
         calc();
@@ -116,44 +108,25 @@ void Camera::update(){
 
 
 void Camera::goalTrack(){
-    // If attacking goal is visible faceGoal --- //
-    attack.face = attack.exist ? true : false; //Set as additional value to allow manual modification
-    defend.face = defend.exist ? true : false; //Set as additional value to allow manual modification
-
+    attack.face = attack.visible ? true : false; //Set as additional value to allow manual modification
+    defend.face = defend.visible ? true : false;
 }
 
 
 double Camera::closestDistance(){
-    // --- Find closest goal in pixels --- //
-    if(yellow.exist || blue.exist){
-        if(!yellow.exist){
-            return blue.distance;
-        } else if (!blue.exist){
-            return yellow.distance;
+    if(attack.visible || defend.visible){
+        if(!attack.visible){
+            return defend.distance;
+        } else if (!defend.visible){
+            return attack.distance;
         } else {
-            return min(yellow.distance, blue.distance);
+            return min(attack.distance, defend.distance);
         }
     }
     return 0;
 }
 
 
-double Camera::closestDistanceCentimeter(){
-    // -- Find closest goal in centimeters --- //
-    if(yellow.exist || blue.exist){
-        if(!yellow.exist){
-            return blue.cm;
-        } else if (!blue.exist){
-            return yellow.cm;
-        } else {
-            return min(yellow.cm, blue.cm);
-        }
-    }
-    return 0;
-}
-
-
-double Camera::centimeterDistance(int distance){
-    // --- Convert pixels into CM with exponential function to postion on field --- //
-    return 10 * pow(MATH_E, 0.02 * distance);
+bool Camera::attackClosest(){
+    return closestDistance() == attack.distance;
 }

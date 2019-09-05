@@ -5,7 +5,7 @@
 
 #define ROBOT 0 //1 or 0, 1 = A
 #define ATTACK_GOAL_YELLOW false //true = Yellow, false = Blue
-#define GOAL_TRACK false
+#define GOAL_TRACK true
 
 
 // --- Movement Speed --- //

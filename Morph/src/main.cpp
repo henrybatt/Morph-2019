@@ -27,9 +27,14 @@ PID yPID(Y_MOVEMENT_KP, Y_MOVEMENT_KI, Y_MOVEMENT_KD, Y_MOVEMENT_MAX);
 // Timer Classes for different robot states 
 Timer attackLEDTimer(800000);
 Timer defenceLEDTimer(400000);
+Timer undecidedLEDTimer(200000);
 
-bool ledOn = false;
 
+bool ledOn = false; // State of LED
+float heading; // IMU heading
+
+// Pointer Setup
+struct bno055_t bno055 = {0};
 MotorController Motor;
 TSSP Tssps;
 LightArrayVector LightVector;
@@ -45,15 +50,21 @@ MoveData moveInfo;
 Mode playMode = Mode::undecided;
 Mode defaultMode;
 
-struct bno055_t bno055 = {0};
-s16 yawRaw = 0;
-float heading;
+// Function defintions
+void centre(int idleDist);
+void calculateOrbit();
+void calculateAttackMovement();
+void calculateDefenseMovement();
+void calculateCorrection();
+void calculateMovement();
+void playModeLED();
+void bnoInit();
 
 
 void centre(int idleDist){
     // --- Centre to goal, idleDist away --- //
 
-    if (Cam.defend.exist){
+    if (Cam.defend.visible){
         double goalAngle = doubleMod(Cam.defend.angle + heading, 360);
         double xmoveInfo = -xPID.update(Cam.defend.distance * sin(degreesToRadians(goalAngle)), 0);
         double ymoveInfo = -yPID.update(Cam.defend.distance * cos(degreesToRadians(goalAngle)), idleDist);
@@ -86,7 +97,7 @@ void calculateAttackMovement(){
         calculateOrbit(); // Calculate Movement towards ball.
 
     } else { // No ball visible, if defending goal visible sit in-line
-        if (Cam.defend.exist){
+        if (Cam.defend.visible){
             // No ball visible, move to idle spot.
             centre(ATTACK_IDLE_DISTANCE);
         } else {
@@ -103,7 +114,7 @@ void calculateAttackMovement(){
 
 void calculateDefenseMovement(){
     // --- Calculate direction to move to intercept ball --- //
-    if (Cam.defend.exist){
+    if (Cam.defend.visible){
         if (ballInfo.exist){
             if (angleIsInside(360 - DEFEND_CAPTURE_ANGLE, DEFEND_CAPTURE_ANGLE, ballInfo.angle) && ballInfo.strength > DEFEND_SURGE_STRENGTH && Cam.defend.distance < DEFEND_SURGE_DISTANCE){
                 // Ball infront of robot, surge forwards
@@ -176,9 +187,53 @@ void calculateMovement(){
 }
 
 
-// Mode caclulateMode(){
+void setup(){
+    // --- Setup Libraries and Variables --- //
 
-// }
+    pinMode(LED_BUILTIN, OUTPUT); //Setup Teensy LED
+    digitalWrite(LED_BUILTIN, HIGH);
+
+    // Initalise libraries
+    bnoInit();
+    Motor.init();
+    Tssps.init();
+    LightVector.init();
+    LightArray.init();
+    Cam.init();
+
+    defaultMode = ROBOT ? Mode::attack : Mode::defend;
+
+    playMode = Mode::defend; // Manual playMode set
+
+
+
+}
+
+
+void loop(){
+    // --- Read libraries and calculate values --- // 
+
+    // Read from libraries to find data
+    bno055_convert_float_euler_h_deg(&heading);
+    Tssps.read();
+    LightArray.update(heading);
+
+    #if GOAL_TRACK // If using camera, update, else don't bother 
+        Cam.update(); // Read Cam data
+        Cam.goalTrack(); // Update goalTrack States
+    #endif
+
+    ballInfo = Tssps.getBallData();
+    lineInfo = LightArray.getLineData();
+
+    calculateMovement(); //Calculate movement values 
+
+    Motor.Move(moveInfo.angle, moveInfo.correction, moveInfo.speed); // Move towards target
+
+    playModeLED(); // Flash LED
+
+} 
+
 
 void bnoInit(){
     delay(100);
@@ -204,60 +259,16 @@ void bnoInit(){
 }
 
 
-void setup(){
-    // --- Setup Libraries and Variables --- //
-
-    pinMode(LED_BUILTIN, OUTPUT); //Setup Teensy LED
-    digitalWrite(LED_BUILTIN, HIGH);
-
-    // Initalise libraries
-    bnoInit();
-    Motor.init();
-    Tssps.init();
-    LightVector.init();
-    LightArray.init();
-    Cam.init();
-
-    defaultMode = ROBOT ? Mode::attack : Mode::defend;
-
-}
-
-
-void loop(){
-    // --- Read libraries and calculate values --- // 
-
-
-    // Read from libraries to find data
-    bno055_convert_float_euler_h_deg(&heading);
-    Tssps.read();
-    LightArray.update(heading);
-
-    #if GOAL_TRACK // If using camera, update, else don't bother 
-        Cam.update(); // Read Cam data
-        Cam.goalTrack(); // Update goalTrack States
-    #endif
-
-    ballInfo = Tssps.getBallData();
-    lineInfo = LightArray.getLineData();
-
-    playMode = Mode::defend; // Manual playMode set
-
-    // calculatePosition(); // Calculates robot's postion on field in cartesian corrdinates
-    calculateMovement(); //Calculate movement values 
-
-    // Serial.println(moveInfo.angle);
-
-    Motor.Move(moveInfo.angle, moveInfo.correction, moveInfo.speed); // Move towards target
-    // Motor.Move(0, moveInfo.correction, 0); // Move towards target
-
-    // Flash LED based off Timer & playMode
+void playModeLED(){
+    // --- Flash LED based off Timer & playMode --- 
     if (playMode == Mode::attack && attackLEDTimer.timeHasPassed()){
         digitalWrite(LED_BUILTIN, ledOn);
         ledOn = !ledOn;
     } else if (playMode == Mode::defend && defenceLEDTimer.timeHasPassed()){
         digitalWrite(LED_BUILTIN, ledOn);
         ledOn = !ledOn;
+    } else if (playMode == Mode::undecided && undecidedLEDTimer.timeHasPassed()){
+        digitalWrite(LED_BUILTIN, ledOn);
+        ledOn = !ledOn;
     }
-
-} 
-
+}

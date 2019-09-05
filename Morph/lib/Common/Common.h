@@ -90,7 +90,7 @@ enum Mode: uint8_t{
 
 #define HEADING_KP 2
 #define HEADING_KI 0
-#define HEADING_KD 0.3
+#define HEADING_KD 0.3//0.3
 #define HEADING_MAX_CORRECTION 255
 
 #define X_MOVEMENT_KP 8 //5

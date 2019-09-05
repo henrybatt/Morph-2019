@@ -11,6 +11,7 @@
 #include <LightSensorArray.h>
 #include <Camera.h>
 #include <Coord.h>
+#include<i2c_t3.h>
 
 // PID's for correction and movement around field
 PID headingPID(HEADING_KP, HEADING_KI, HEADING_KD, HEADING_MAX_CORRECTION);
@@ -102,9 +103,6 @@ void calculateAttackMovement(){
 
 void calculateDefenseMovement(){
     // --- Calculate direction to move to intercept ball --- //
-
-    Serial.println("Defend");
-
     if (Cam.defend.exist){
         if (ballInfo.exist){
             if (angleIsInside(360 - DEFEND_CAPTURE_ANGLE, DEFEND_CAPTURE_ANGLE, ballInfo.angle) && ballInfo.strength > DEFEND_SURGE_STRENGTH && Cam.defend.distance < DEFEND_SURGE_DISTANCE){
@@ -183,6 +181,8 @@ void calculateMovement(){
 // }
 
 void bnoInit(){
+    delay(100);
+    Wire.begin();
     // setup BNO055 driver
     bno055.bus_read = bno055_read;
     bno055.bus_write = bno055_write;
@@ -201,17 +201,10 @@ void bnoInit(){
         Serial.printf("BNO055 init error: %d\n", result);
     }
     
-    Serial.println("BNO");
-
 }
 
 
 void setup(){
-
-
-    delay(6000);
-    Serial.println("Ser");
-
     // --- Setup Libraries and Variables --- //
 
     pinMode(LED_BUILTIN, OUTPUT); //Setup Teensy LED
@@ -251,6 +244,8 @@ void loop(){
 
     // calculatePosition(); // Calculates robot's postion on field in cartesian corrdinates
     calculateMovement(); //Calculate movement values 
+
+    // Serial.println(moveInfo.angle);
 
     Motor.Move(moveInfo.angle, moveInfo.correction, moveInfo.speed); // Move towards target
     // Motor.Move(0, moveInfo.correction, 0); // Move towards target

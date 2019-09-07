@@ -20,7 +20,7 @@ struct goalData{
 class Camera{
     public:
 
-        // -- Structures of all camera data --
+        /* -- Structures of all camera data -- */
         camImage yellow;
         camImage blue;
 
@@ -28,39 +28,39 @@ class Camera{
         goalData defend;
 
 
-        // -- Setup Camera Serial and read-- 
+        /* -- Setup Camera Serial and read-- */
         void init();
 
-        // -- Read Camera data and update angles and distances --
+        /* -- Read Camera data and update angles and distances -- */
         void update();
 
-        // -- If goal's are visible faceGoal --
+        /* -- If goal's are visible faceGoal -- */
         void goalTrack();
 
-        // -- Find closest goal in pixels --
+        /* -- Find closest goal in pixels -- */
         double closestDistance();
 
     private:
 
-        // -- Read from camera serial to get x & y values of goals --
+        /* -- Read from camera serial to get x & y values of goals -- */
         void read();
 
-        // -- Calculate angle's + distances towards goals --
+        /* -- Calculate angle's + distances towards goals -- */
         void calc();
 
-        // -- Determines if new data has come over cameraSerial --
+        /* -- Determines if new data has come over cameraSerial -- */
         bool newData();
 
-        // -- Populate goal data with values -- 
-        void calculateGoal(goalData *goal, camImage image);
+        /* -- Populate goal data with values -- */
+        void calculateGoal(goalData *goal, camImage image, bool defend);
 
-        // -- Calculate angle towards image --
+        /* -- Calculate angle towards image -- */
         int calculateAngle(camImage image);
 
-        // -- Calculate distance towards image --
+        /* -- Calculate distance towards image -- */
         int calculateDistance(camImage image);
 
-        // -- If attacking goal closest --
+        /* -- If attacking goal closest -- */
         bool attackClosest();
 
 

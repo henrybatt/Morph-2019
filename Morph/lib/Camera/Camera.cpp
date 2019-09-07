@@ -16,13 +16,8 @@ void Camera::read(){
                 camBuffer[i] = cameraSerial.read();
             }
 
-            yellow.x = camBuffer[0];
-            yellow.y = camBuffer[1];
-            yellow.visible = camBuffer[4];
-
-            blue.x = camBuffer[2];
-            blue.y = camBuffer[3];
-            blue.visible = camBuffer[5];  
+            yellow = {.x = camBuffer[0], .y = camBuffer[1], .visible = camBuffer[4]};
+            blue = {.x = camBuffer[2], .y = camBuffer[3], .visible = camBuffer[5]};
 
         }
     }
@@ -46,12 +41,13 @@ void Camera::calc() {
     blue.visible = false;
 
     #if ATTACK_GOAL_YELLOW
-        calculateGoal(&attack, yellow);
-        calculateGoal(&defend, blue);
+        calculateGoal(&attack, yellow, false);
+        calculateGoal(&defend, blue, true);
     #else
-        calculateGoal(&attack, blue);
-        calculateGoal(&defend, yellow);
+        calculateGoal(&attack, blue, false);
+        calculateGoal(&defend, yellow, true);
     #endif
+
 
     #if DEBUG_CAMERA
         Serial.print("Attack Angle: ");
@@ -70,8 +66,9 @@ void Camera::calc() {
 }
 
 
-void Camera::calculateGoal(goalData *goal, camImage image){
-    *goal = {calculateAngle(image), calculateDistance(image), image.visible, goal->face};
+void Camera::calculateGoal(goalData *goal, camImage image, bool defend){
+    *goal = {.angle = defend ? mod(calculateAngle(image) + 180, 360) : calculateAngle(image), 
+    .distance = calculateDistance(image), .visible = image.visible, .face = goal->face};
 }
 
 

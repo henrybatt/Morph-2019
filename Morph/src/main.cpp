@@ -50,20 +50,29 @@ MoveData moveInfo;
 Mode playMode = Mode::undecided;
 Mode defaultMode;
 
-// Function defintions
+/* --- Centre to goal, idleDist away --- */
 void centre(int idleDist);
+/* --- Determine angle and speed to orbit around ball --- */
 void calculateOrbit();
+/* --- Calculate attacking movement --- */
 void calculateAttackMovement();
+/* --- Calculate direction to move to intercept ball --- */
 void calculateDefenseMovement();
+/* --- Correction state, either goal or compass --- */
 void calculateCorrection();
+/* --- Calulates movement of robot based on state and outAvoidance --- */
 void calculateMovement();
+/* --- Flash LED based off Timer & playMode --- */
 void playModeLED();
+/* --- Initalise the BNO --- */
 void bnoInit();
+/* --- Setup Libraries and Variables --- */
+void setup();
+/* --- Read libraries and calculate values --- */
+void loop();
 
 
 void centre(int idleDist){
-    // --- Centre to goal, idleDist away --- //
-
     if (Cam.defend.visible){
         double goalAngle = doubleMod(Cam.defend.angle + heading, 360);
         double xmoveInfo = -xPID.update(Cam.defend.distance * sin(degreesToRadians(goalAngle)), 0);
@@ -76,7 +85,6 @@ void centre(int idleDist){
 
 
 void calculateOrbit(){
-    // --- Determine angle and speed to orbit around ball --- //
     moveInfo.angle = doubleMod(ballInfo.angle + Tssps.calcAngleAddition(), 360); // Orbit Angle
 
     //If ball infront of capture zone, surge forwards fast, else move at a modular speed
@@ -90,8 +98,6 @@ void calculateOrbit(){
 
 
 void calculateAttackMovement(){
-    // --- Calculate attacking movement --- //
-
     // Calculate Ball State and Movement
     if (ballInfo.exist){
         calculateOrbit(); // Calculate Movement towards ball.
@@ -113,7 +119,6 @@ void calculateAttackMovement(){
 
 
 void calculateDefenseMovement(){
-    // --- Calculate direction to move to intercept ball --- //
     if (Cam.defend.visible){
         if (ballInfo.exist){
             if (angleIsInside(360 - DEFEND_CAPTURE_ANGLE, DEFEND_CAPTURE_ANGLE, ballInfo.angle) && ballInfo.strength > DEFEND_SURGE_STRENGTH && Cam.defend.distance < DEFEND_SURGE_DISTANCE){
@@ -155,8 +160,6 @@ void calculateDefenseMovement(){
 
 
 void calculateCorrection(){
-    //Correction state. Either Goal or Compass
-
     if (Cam.attack.face && playMode == Mode::attack){ // Correct to attack goal
         double goalAngle = doubleMod(Cam.attack.angle + heading, 360);
             moveInfo.correction = round(attackGoalTrackPID.update(doubleMod(doubleMod(heading - goalAngle, 360) + 180, 360) - 180, 0));
@@ -172,8 +175,6 @@ void calculateCorrection(){
 
 
 void calculateMovement(){ 
-    // --- Calulates movement of robot based on state and outAvoidance --- //
-
     if (playMode == Mode::attack){ // Update movement style based on playMode
         calculateAttackMovement();
     } else {
@@ -188,8 +189,6 @@ void calculateMovement(){
 
 
 void setup(){
-    // --- Setup Libraries and Variables --- //
-
     pinMode(LED_BUILTIN, OUTPUT); //Setup Teensy LED
     digitalWrite(LED_BUILTIN, HIGH);
 
@@ -211,8 +210,6 @@ void setup(){
 
 
 void loop(){
-    // --- Read libraries and calculate values --- // 
-
     // Read from libraries to find data
     bno055_convert_float_euler_h_deg(&heading);
     Tssps.read();
@@ -230,7 +227,7 @@ void loop(){
 
     Motor.Move(moveInfo.angle, moveInfo.correction, moveInfo.speed); // Move towards target
 
-    playModeLED(); // Flash LED
+    playModeLED();
 
 } 
 
@@ -260,7 +257,6 @@ void bnoInit(){
 
 
 void playModeLED(){
-    // --- Flash LED based off Timer & playMode --- 
     if (playMode == Mode::attack && attackLEDTimer.timeHasPassed()){
         digitalWrite(LED_BUILTIN, ledOn);
         ledOn = !ledOn;

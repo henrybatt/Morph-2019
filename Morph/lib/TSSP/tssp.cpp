@@ -13,7 +13,8 @@ void TSSP::read(){
 
     for (int j = 0; j < TSSP_READ_NUM; j++){
         for (int i = 0; i < TSSP_NUM; i++){
-            if( !ROBOT &&(i == 1 || i == 3 || i == 5 || i == 11 || i == 13 || i== 15 || i == 16)) continue;
+            if( !ROBOT &&(i == 1 || i == 3 || i == 4 || i == 5 || i == 11 || i == 13 || i== 15 || i == 16)) continue;
+            if ( ROBOT && (i == 6 || i == 1 || i == 17)) continue;
             readValues[i] += 1 - digitalRead(pins[i]);
         }
     }
@@ -28,7 +29,7 @@ void TSSP::read(){
             if (i != TSSP_NUM - 1){
                 Serial.print(" ");
             }else{
-                Serial.println();
+                Serial.println("");
             }
         #endif
     }
@@ -67,6 +68,14 @@ void TSSP::calculateAngleStrength(int n){
     ballInfo.strength = sqrt(x * x + y * y);
     ballInfo.exist = (ballInfo.strength != 0);
     ballInfo.angle = ballInfo.exist ? doubleMod(radiansToDegrees(atan2(y, x)), 360) : TSSP_NO_BALL;
+
+    #if DEBUG_BALL_DATA
+        Serial.print(ballInfo.angle);
+        Serial.print("\t");
+        Serial.println(ballInfo.strength);
+
+    #endif
+
 }
 
 double TSSP::calcAngleAddition(){
@@ -76,8 +85,4 @@ double TSSP::calcAngleAddition(){
     double distanceMultiplier = constrain((0.02 * strengthFactor * pow(MATH_E, 4.5 * strengthFactor)), 0, 1);
     angleAddition = ballAngleDifference * distanceMultiplier;
     return angleAddition;
-}
-
-BallData TSSP::getBallData(){
-    return ballInfo;
 }

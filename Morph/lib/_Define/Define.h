@@ -19,8 +19,9 @@
 
 // --- Camera --- //
 #define cameraSerial Serial4
-#define CAM_BUFFER_NUM 7
-#define CAM_START_NUM 255
+#define CAM_BAUD 115200
+#define CAM_PACKET_SIZE 7
+#define CAM_START_BYTE 255
 #define CAM_IMAGE_WIDTH 320
 #define CAM_IMAGE_HEIGHT 240
 #define CAM_NO_DATA 250
@@ -84,6 +85,16 @@
 #define MOTOR_ANGLE_3 315
 
 
+// -- Bluetooth -- //
+#define BLUETOOTH_BAUD 115200
+#define bluetoothSerial Serial5
+#define BLUETOOTH_START_BYTE 255
+#define BLUETOOTH_PACKET_SIZE 11
+#define BLUETOOTH_DISCONNECT_TIME 1000000
+#define BLUETOOTH_UPDATE_TIME 100000
+
+
+
 // --- Field Information --- //
 #define FIELD_WIDTH_CM 182
 #define FIELD_LENGTH_CM 243
@@ -105,20 +116,20 @@
 
 
 // --- Defender --- //
-#define DEFEND_DISTANCE 50
+#define DEFEND_DISTANCE 60
 #define DEFEND_DISTANCE_CM 20 //Distance from goal in CM to sit at
 
-#define DEFEND_SURGE_STRENGTH 170 // Strength of ball to surge
+#define DEFEND_SURGE_STRENGTH 140 // Strength of ball to surge
 
 #define DEFEND_CAPTURE_ANGLE 20 // Angle range of ball to surge
 
-#define DEFEND_SURGE_DISTANCE 60 // Distance from goal to surge till
+#define DEFEND_SURGE_DISTANCE 66 // Distance from goal to surge till
 #define DEFEND_SURGE_Y -30
 
 // --- Attacker --- //
-#define ATTACK_IDLE_DISTANCE 75 // Distance from defending goal to sit at when no ball
+#define ATTACK_IDLE_DISTANCE 62 // Distance from defending goal to sit at when no ball
 
-#define ATTACK_SURGE_STRENGTH 150 // Strength of ball to surge 
+#define ATTACK_SURGE_STRENGTH 140 // Strength of ball to surge 
 
 #define ATTACK_CAPTURE_ANGLE 10 // Angle range of ball to surge
 

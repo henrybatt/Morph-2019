@@ -10,7 +10,11 @@ void MotorController::init(){
     motorFrontRight.Setup(MOTOR_FRONT_RIGHT_ENA,MOTOR_FRONT_RIGHT_IN1,MOTOR_FRONT_RIGHT_IN2,MOTOR_FRONT_RIGHT_REVERSED);
 }
 
-void MotorController::Move(int angle, int rotation, int speed){
+void MotorController::Move(MoveData moveInfo){
+
+  int angle = moveInfo.angle;
+  int speed = moveInfo.speed;
+  int rotation = moveInfo.correction;
 
   if(speed!=0){
     double angRad = degreesToRadians(360-angle);

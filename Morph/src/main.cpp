@@ -3,15 +3,17 @@
 #include <Common.h>
 #include <PID.h>
 #include <Timer.h>
-#include <bno055.h>
-#include <bno055_driver.h>
+// #include <bno055.h>
+// #include <bno055_driver.h>
 #include <MotorController.h>
 #include <TSSP.h>
 #include <LightArrayVector.h>
 #include <LightSensorArray.h>
 #include <Camera.h>
-#include <Coord.h>
-#include<i2c_t3.h>
+#include <Vector.h>
+#include <Bluetooth.h>
+// #include<i2c_t3.h>
+#include <IMU.h>
 
 // PID's for correction and movement around field
 PID headingPID(HEADING_KP, HEADING_KI, HEADING_KD, HEADING_MAX_CORRECTION);
@@ -34,7 +36,7 @@ bool ledOn = false; // State of LED
 float heading; // IMU heading
 
 // Pointer Setup
-struct bno055_t bno055 = {0};
+// struct bno055_t bno055 = {0};
 MotorController Motor;
 TSSP Tssps;
 LightArrayVector LightVector;
@@ -46,12 +48,18 @@ BallData ballInfo;
 LineData lineInfo;
 MoveData moveInfo;
 
+// Vectors
+Vector robotPosition (0,0);
+Vector ballPosition (0,0);
+
 // Robot Mode
 Mode playMode = Mode::undecided;
 Mode defaultMode;
 
+IMU Compass;
+
 /* --- Centre to goal, idleDist away --- */
-void centre(int idleDist);
+void centre(goalData goal, int idleDist);
 /* --- Determine angle and speed to orbit around ball --- */
 void calculateOrbit();
 /* --- Calculate attacking movement --- */
@@ -72,15 +80,12 @@ void setup();
 void loop();
 
 
-void centre(int idleDist){
-    if (Cam.defend.visible){
-        double goalAngle = doubleMod(Cam.defend.angle + heading, 360);
-        double xmoveInfo = -xPID.update(Cam.defend.distance * sin(degreesToRadians(goalAngle)), 0);
-        double ymoveInfo = -yPID.update(Cam.defend.distance * cos(degreesToRadians(goalAngle)), idleDist);
-        moveInfo.angle = doubleMod(radiansToDegrees(atan2(xmoveInfo, ymoveInfo)) - heading + 180, 360);
-        moveInfo.speed = sqrt(pow(xmoveInfo,2) + pow(ymoveInfo,2));
-
-    }
+void centre(goalData goal, int idleDist){
+    double goalAngle = doubleMod(goal.angle + heading, 360);
+    double xmoveInfo = -xPID.update(goal.distance * sin(degreesToRadians(goalAngle)), 0);
+    double ymoveInfo = -yPID.update(goal.distance * cos(degreesToRadians(goalAngle)), idleDist);
+    moveInfo.angle = doubleMod(radiansToDegrees(atan2(xmoveInfo, ymoveInfo)) - heading + 180, 360);
+    moveInfo.speed = sqrt(pow(xmoveInfo,2) + pow(ymoveInfo,2));
 }
 
 
@@ -100,21 +105,23 @@ void calculateOrbit(){
 void calculateAttackMovement(){
     // Calculate Ball State and Movement
     if (ballInfo.exist){
-        calculateOrbit(); // Calculate Movement towards ball.
+        // calculateOrbit(); // Calculate Movement towards ball.
+        moveInfo.angle = -1;
+        moveInfo.speed = 0;
 
     } else { // No ball visible, if defending goal visible sit in-line
         if (Cam.defend.visible){
             // No ball visible, move to idle spot.
-            centre(ATTACK_IDLE_DISTANCE);
+            centre(Cam.defend, ATTACK_IDLE_DISTANCE);
+            // moveInfo.angle = -1;
+            // moveInfo.speed = 0;
         } else {
             // No ball or goal visible, stop
             moveInfo.angle = -1;
             moveInfo.speed = 0;
 
         }
-    }
-
-    
+    } 
 }
 
 
@@ -139,9 +146,7 @@ void calculateDefenseMovement(){
 
         } else {
             // No ball, centre to goal
-            centre(DEFEND_DISTANCE);
-            // moveInfo.angle = -1;
-            // moveInfo.speed = 0;
+            centre(Cam.defend, DEFEND_DISTANCE);
        }
     } else {
         if (ballInfo.exist){
@@ -193,12 +198,14 @@ void setup(){
     digitalWrite(LED_BUILTIN, HIGH);
 
     // Initalise libraries
-    bnoInit();
+    // bnoInit();
     Motor.init();
     Tssps.init();
     LightVector.init();
     LightArray.init();
     Cam.init();
+
+    Compass.init();
 
     defaultMode = ROBOT ? Mode::attack : Mode::defend;
 
@@ -211,30 +218,32 @@ void setup(){
 
 void loop(){
     // Read from libraries to find data
-    bno055_convert_float_euler_h_deg(&heading);
+
+    Compass.read();
+    heading = Compass.heading;
+
+    // bno055_convert_float_euler_h_deg(&heading);
     Tssps.read();
     LightArray.update(heading);
+
 
     #if GOAL_TRACK // If using camera, update, else don't bother 
         Cam.update(); // Read Cam data
         Cam.goalTrack(); // Update goalTrack States
     #endif
 
-    ballInfo = Tssps.getBallData();
-    lineInfo = LightArray.getLineData();
-
     calculateMovement(); //Calculate movement values 
 
-    Motor.Move(moveInfo.angle, moveInfo.correction, moveInfo.speed); // Move towards target
+    Motor.Move(moveInfo); // Move towards target
 
     playModeLED();
 
 } 
 
-
+/*
 void bnoInit(){
     delay(100);
-    Wire.begin();
+    // Wire.begin();
     // setup BNO055 driver
     bno055.bus_read = bno055_read;
     bno055.bus_write = bno055_write;
@@ -254,7 +263,7 @@ void bnoInit(){
     }
     
 }
-
+*/
 
 void playModeLED(){
     if (playMode == Mode::attack && attackLEDTimer.timeHasPassed()){

@@ -6,17 +6,15 @@
 #include <Define.h>
 #include <Debug.h>
 #include <Pins.h>
+#include <Timer.h>
 
 
 class TSSP{
     public:
 
-        BallData ballInfo;
-
         void init();
         void read();
         double calcAngleAddition();
-        BallData getBallData();
 
         double angleAddition;
 
@@ -34,6 +32,8 @@ class TSSP{
 
         double scaledCos[TSSP_NUM] = {0};
         double scaledSin[TSSP_NUM] = {0};
+
+        Timer tsspReadTimer = Timer(833);
 
 };
 

@@ -4,6 +4,16 @@
 #include <Arduino.h>
 #include <math.h>
 
+#include <Define.h>
+#include <Debug.h>
+#include <Pins.h>
+
+#include <BallData.h>
+#include <LineData.h>
+#include <Mode.h>
+#include <MoveData.h>
+#include <BluetoothData.h>
+
 #define PI 3.1415926535897932384626433832795
 
 #define TO_RADIANS 0.01745329251994329576923690768489
@@ -18,6 +28,9 @@ int mod(int x, int m);
 double doubleMod(double value, double maxValue);
 
 int findSign(double value);
+
+bool isAngleBetween(int angle, int leftAngle, int rightAngle);
+bool isAngleBetween(double angle, double leftAngle, double rightAngle);
 
 bool angleIsInside(double angleBoundCounterClockwise, double angleBoundClockwise, double angleCheck);
 double angleBetween(double angleCounterClockwise, double angleClockwise);
@@ -54,33 +67,6 @@ struct Vector3D {
   double z;
 };
 
-struct MoveData {
-    double angle;
-    double speed;
-    double correction;
-};
-
-
-struct LineData {
-    double angle;
-    double size;
-    bool onField;
-};
-
-struct BallData{
-    double angle;
-    double strength;
-    bool exist;
-    bool isOut;
-    bool isSecured;
-};
-
-enum Mode: uint8_t{
-    attack,
-    defend,
-    undecided
-};
-
 // --- PID --- //
 
 #define IDLE_HEADING_KP 1
@@ -90,18 +76,18 @@ enum Mode: uint8_t{
 
 #define HEADING_KP 2
 #define HEADING_KI 0
-#define HEADING_KD 0.3//0.3
+#define HEADING_KD 0.21
 #define HEADING_MAX_CORRECTION 255
 
-#define X_MOVEMENT_KP 8 //5
+#define X_MOVEMENT_KP 5
 #define X_MOVEMENT_KI 0
-#define X_MOVEMENT_KD 0.6
-#define X_MOVEMENT_MAX 150
+#define X_MOVEMENT_KD 0.3
+#define X_MOVEMENT_MAX 240
 
-#define Y_MOVEMENT_KP 5 //8
+#define Y_MOVEMENT_KP 10
 #define Y_MOVEMENT_KI 0
-#define Y_MOVEMENT_KD 0.1 //0.3
-#define Y_MOVEMENT_MAX 150
+#define Y_MOVEMENT_KD 0.2
+#define Y_MOVEMENT_MAX 230
 
 #define TO_COORD_KP 1.5
 #define TO_COORD_KI 0

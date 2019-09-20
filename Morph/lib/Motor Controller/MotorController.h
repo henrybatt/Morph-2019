@@ -13,7 +13,7 @@ public:
   Motor motorBackLeft;
   Motor motorBackRight;
   void init();
-  void Move(int angle, int rotation, int speed);
+  void Move(MoveData moveInfo);
   void Turn(int speed);
   void Brake();
   int weights [4] = {0, 0, 0, 0};

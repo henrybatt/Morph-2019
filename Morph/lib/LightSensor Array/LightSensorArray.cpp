@@ -192,6 +192,14 @@ void LightSensorArray::calculateLineData(float heading){
             }
         }
     }
+
+    #if DEBUG_LINE_DATA
+        Serial.print(lineInfo.angle);
+        Serial.print("\t");
+        Serial.println(lineInfo.size);
+    #endif
+
+
 }
 
 MoveData LightSensorArray::calculateOutAvoidance(float heading, MoveData calcMove){
@@ -231,7 +239,4 @@ bool LightSensorArray::isOutsideLine(float heading, double angle){
     }
 }
 
-LineData LightSensorArray::getLineData(){
-    return lineInfo;
-}
 

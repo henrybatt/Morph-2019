@@ -28,6 +28,15 @@ bool isAngleBetween(int angle, int leftAngle, int rightAngle){
   }
 }
 
+bool isAngleBetween(double angle, double leftAngle, double rightAngle){
+  if(rightAngle < leftAngle){
+    return angle < rightAngle || angle > leftAngle;
+  }
+  else{
+    return angle < rightAngle && angle > leftAngle;
+  }
+}
+
 double angleBetween(double angleCounterClockwise, double angleClockwise){
   return doubleMod(angleClockwise - angleCounterClockwise, 360);
 }

@@ -67,7 +67,7 @@ class Camera{
         bool newCamData;
 
         int currentin;
-        int camBuffer[CAM_BUFFER_NUM];
+        int camBuffer[CAM_PACKET_SIZE];
 
 
 

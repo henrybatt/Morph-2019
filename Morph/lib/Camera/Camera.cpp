@@ -1,17 +1,17 @@
 #include <Camera.h>
 
 void Camera::init(){
-    cameraSerial.begin(9600);
+    cameraSerial.begin(CAM_BAUD);
     newCamData = true;
     read();
 }
 
 
 void Camera::read(){
-    if (cameraSerial.available() >= CAM_BUFFER_NUM) {
-        if(cameraSerial.read() == CAM_START_NUM) {
+    if (cameraSerial.available() >= CAM_PACKET_SIZE) {
+        if(cameraSerial.read() == CAM_START_BYTE) {
             newCamData = true;
-            for (int i = 0; i < CAM_BUFFER_NUM - 1; i++){
+            for (int i = 0; i < CAM_PACKET_SIZE - 1; i++){
                 while (!cameraSerial.available());
                 camBuffer[i] = cameraSerial.read();
             }
@@ -76,7 +76,7 @@ int Camera::calculateAngle(camImage image){
     int x = image.x - (CAM_IMAGE_WIDTH / 2);
     int y = image.y - (CAM_IMAGE_HEIGHT / 2);
 
-    return mod(450 - round(radiansToDegrees(atan2(y,x))), 360);
+    return image.visible ? mod(450 - round(radiansToDegrees(atan2(y,x))), 360) : -1;
 }
 
 
@@ -84,7 +84,7 @@ int Camera::calculateDistance(camImage image){
     int x = image.x - (CAM_IMAGE_WIDTH / 2);
     int y = image.y - (CAM_IMAGE_HEIGHT / 2);
 
-    return sqrt(x * x + y * y);
+    return image.visible ? sqrt(x * x + y * y) : 0;
 }
 
 
@@ -102,7 +102,6 @@ void Camera::update(){
         calc();
     }
 }
-
 
 void Camera::goalTrack(){
     attack.face = attack.visible ? true : false; //Set as additional value to allow manual modification

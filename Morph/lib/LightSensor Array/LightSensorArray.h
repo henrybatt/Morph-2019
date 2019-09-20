@@ -12,8 +12,6 @@ class LightSensorArray {
 public:
     LightSensorArray() {}
 
-    LineData lineInfo;
-
     void init();
     void update(float heading);
 
@@ -21,7 +19,6 @@ public:
     double size = NO_LINE_SIZE;
 
     MoveData calculateOutAvoidance(float heading, MoveData calcMove);
-    LineData getLineData();
 
     bool isOutsideLine(float heading, double angle);
 

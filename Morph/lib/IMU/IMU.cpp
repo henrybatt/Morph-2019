@@ -26,7 +26,7 @@ Vector3D IMU::readAccelerometer() {
     return returnVector;
 }
 
-Vector3D   IMU::readGyroscope() {
+Vector3D IMU::readGyroscope() {
     uint8_t buffer[14];
     I2Cread(MPU9250_ADDRESS, 0x3B, 14, buffer);
 

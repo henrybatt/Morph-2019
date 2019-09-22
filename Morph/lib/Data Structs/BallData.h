@@ -1,19 +1,38 @@
 #ifndef BALLDATA_H
 #define BALLDATA_H
 
+#include <Arduino.h>
+#include <Common.h>
+#include <Vector.h>
 
-struct BallData{
-    uint16_t angle;
-    uint16_t strength;
-    bool exist;
-    bool isOut;
 
-    BallData() {
-        angle = TSSP_NO_BALL;
-        strength = 0;
-    }
+class BallData{
 
-    BallData(uint16_t angle, uint16_t strength, bool exist, bool isOut) : angle(angle), strength(strength), exist(exist), isOut(isOut) {}
+    public:
+        uint16_t angle;
+        uint16_t strength;
+        bool isOut;
+
+        BallData() {
+            angle = TSSP_NO_BALL;
+            strength = 0;
+        }
+
+        BallData(uint16_t angle, uint16_t strength) : angle(angle), strength(strength) {}
+
+        BallData(uint16_t angle, uint16_t strength, bool isOut) : angle(angle), strength(strength), isOut(isOut) {}
+        
+
+        bool visible(){
+            return strength != 0;
+        }
+
+ 
+        Vector vector(float heading = 0){
+            return Vector(doubleMod(angle + heading, 360), 123 /*Strength Calculation*/, false);
+        } 
+
+
 };
 
 extern BallData ballInfo;

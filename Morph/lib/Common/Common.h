@@ -6,13 +6,6 @@
 
 #include <Define.h>
 #include <Debug.h>
-#include <Pins.h>
-
-#include <BallData.h>
-#include <LineData.h>
-#include <Mode.h>
-#include <MoveData.h>
-#include <BluetoothData.h>
 
 #define PI 3.1415926535897932384626433832795
 

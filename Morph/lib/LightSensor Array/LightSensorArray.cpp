@@ -202,22 +202,20 @@ void LightSensorArray::calculateLineData(float heading){
 
 }
 
-MoveData LightSensorArray::calculateOutAvoidance(float heading, MoveData calcMove){
+void LightSensorArray::calculateOutAvoidance(MoveData *calcMove, float heading){
     // --- Calculate angle and speed to return to field --- //
     if (!lineInfo.onField){
         //Not on field, return
         if (lineInfo.size > LINE_SIZE_BIG){
             //Nearly off line, return
-            calcMove.speed = lineInfo.size == 3 ? LINE_OVER_SPEED : lineInfo.size * LINE_SPEED; // Avoid line based on how far over
-            calcMove.angle = mod(lineInfo.angle + 180 - heading, 360);                          // Mod angle by 180 to reverse direction to go back over line
-        } else if (lineInfo.size > LINE_SIZE_SMALL && isOutsideLine(heading, calcMove.angle)){
+
+            *calcMove = MoveData(doubleMod(lineInfo.angle + 180 - heading, 360), lineInfo.size == 3 ? LINE_OVER_SPEED : lineInfo.size * LINE_SPEED); // Avoid line based on how far over
+
+        } else if (lineInfo.size > LINE_SIZE_SMALL && isOutsideLine(heading, calcMove->angle)){
             //Just touching line but orbit wants to go out, sit still
-            calcMove.angle = -1;
-            calcMove.speed = 0;
+            *calcMove = MoveData(-1, 0);
         }
     }
-
-    return calcMove;
 }
 
 

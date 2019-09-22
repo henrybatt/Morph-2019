@@ -6,6 +6,8 @@
 #include <Pins.h>
 #include <Define.h>
 #include <Debug.h>
+#include <MoveData.h>
+#include <LineData.h>
 
 // Array of light sensors
 class LightSensorArray {
@@ -18,7 +20,7 @@ public:
     double angle = NO_LINE_ANGLE;
     double size = NO_LINE_SIZE;
 
-    MoveData calculateOutAvoidance(float heading, MoveData calcMove);
+    void calculateOutAvoidance(MoveData *calcMove, float heading);
 
     bool isOutsideLine(float heading, double angle);
 

@@ -12,6 +12,7 @@ struct MoveData{
     double correction;
 
     MoveData() {}
+    MoveData(double a, double s) : angle(a), speed(s) {}
     MoveData(double a, double s, double c) : angle(a), speed(s), correction(c) {}
 
 };

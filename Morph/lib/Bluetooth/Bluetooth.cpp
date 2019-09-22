@@ -30,9 +30,6 @@ void Bluetooth::send(){
     bluetoothSerial.write(highByte(thisData.ballData.strength));
     bluetoothSerial.write(lowByte(thisData.ballData.strength));
 
-    // Ball Exist
-    bluetoothSerial.write(thisData.ballData.exist);
-
     // Ball Out
     bluetoothSerial.write(thisData.ballData.isOut);
 
@@ -46,11 +43,14 @@ void Bluetooth::send(){
     bluetoothSerial.write(highByte(thisData.heading));
     bluetoothSerial.write(lowByte(thisData.heading));
 
+    // Robot Position
+    bluetoothSerial.write(highByte(round(thisData.robotPosition.i)));
+    bluetoothSerial.write(lowByte(round(thisData.robotPosition.j)));
+
+
 }
 
 void Bluetooth::recieve(){
-
-    bool recievedData = false;
 
     while (bluetoothSerial.available() >= BLUETOOTH_PACKET_SIZE){
         uint8_t firstByte = bluetoothSerial.read();
@@ -62,19 +62,18 @@ void Bluetooth::recieve(){
                 bluetoothBuffer[i] = bluetoothSerial.read();
             }
 
-            otherData.ballData = BallData((bluetoothBuffer[0] << 8) | bluetoothBuffer[1], (bluetoothBuffer[2] << 8) | bluetoothBuffer[3],
-                                bluetoothBuffer[4], bluetoothBuffer[5]);
-            otherData.lineData = LineData(-1, 0, bluetoothBuffer[6]);
-            otherData.playMode = static_cast<Mode>(bluetoothBuffer[7]);
-            otherData.heading = (bluetoothBuffer[8] << 8 | bluetoothBuffer[9]);
-
-            recievedData = true;
             disconnectTimer.update();
+
+            otherData.ballData = BallData((bluetoothBuffer[0] << 8) | bluetoothBuffer[1], (bluetoothBuffer[2] << 8) | bluetoothBuffer[3], bluetoothBuffer[4]);
+            otherData.lineData = LineData(-1, 0, bluetoothBuffer[5]);
+            otherData.playMode = static_cast<Mode>(bluetoothBuffer[6]);
+            otherData.heading = (bluetoothBuffer[7] << 8 | bluetoothBuffer[8]);
+
 
         }
     }
 
-    isConnected = recievedData || !disconnectTimer.timeHasPassedNoUpdate();
+    isConnected = !disconnectTimer.timeHasPassedNoUpdate();
 
     if (isConnected){
         if (!previouslyConnected){

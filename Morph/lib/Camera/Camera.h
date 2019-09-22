@@ -40,6 +40,9 @@ class Camera{
         /* -- Find closest goal in pixels -- */
         double closestDistance();
 
+        /* -- If attacking goal closest -- */
+        bool attackClosest();
+
     private:
 
         /* -- Read from camera serial to get x & y values of goals -- */
@@ -60,8 +63,7 @@ class Camera{
         /* -- Calculate distance towards image -- */
         int calculateDistance(camImage image);
 
-        /* -- If attacking goal closest -- */
-        bool attackClosest();
+
 
 
         bool newCamData;

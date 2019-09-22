@@ -48,7 +48,6 @@ void Camera::calc() {
         calculateGoal(&defend, yellow, true);
     #endif
 
-
     #if DEBUG_CAMERA
         Serial.print("Attack Angle: ");
         Serial.print(attack.angle);
@@ -68,7 +67,7 @@ void Camera::calc() {
 
 void Camera::calculateGoal(goalData *goal, camImage image, bool defend){
     *goal = {.angle = defend ? mod(calculateAngle(image) + 180, 360) : calculateAngle(image), 
-    .distance = calculateDistance(image), .visible = image.visible, .face = goal->face};
+    .distance = calculateDistance(image), .visible = image.visible};
 }
 
 

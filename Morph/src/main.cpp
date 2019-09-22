@@ -7,20 +7,26 @@
 // #include <bno055_driver.h>
 #include <MotorController.h>
 #include <TSSP.h>
-#include <LightArrayVector.h>
 #include <LightSensorArray.h>
 #include <Camera.h>
-#include <Vector.h>
 #include <Bluetooth.h>
 // #include<i2c_t3.h>
 #include <IMU.h>
+
+// #include <Vector.h>
+// #include <Mode.h>
+// #include <MoveData.h>
+// #include <LineData.h>
+// #include <BallData.h>
+// #include <BluetoothData.h>
+
+#include <Position.h>
+
 
 // PID's for correction and movement around field
 PID headingPID(HEADING_KP, HEADING_KI, HEADING_KD, HEADING_MAX_CORRECTION);
 PID attackGoalTrackPID(ATTACK_GOAL_TRACK_KP, ATTACK_GOAL_TRACK_KI, ATTACK_GOAL_TRACK_KD, ATTACK_GOAL_TRACK_MAX_CORRECTION);
 PID defendGoalTrackPID(DEFEND_GOAL_TRACK_KP, DEFEND_GOAL_TRACK_KI, DEFEND_GOAL_TRACK_KD, DEFEND_GOAL_TRACK_MAX_CORRECTION);
-
-PID coordPID(TO_COORD_KP, TO_COORD_KI, TO_COORD_KD, TO_COORD_MAX_SPEED);
 
 PID xPID(X_MOVEMENT_KP, X_MOVEMENT_KI, X_MOVEMENT_KD, X_MOVEMENT_MAX);
 PID yPID(Y_MOVEMENT_KP, Y_MOVEMENT_KI, Y_MOVEMENT_KD, Y_MOVEMENT_MAX);
@@ -39,18 +45,21 @@ float heading; // IMU heading
 // struct bno055_t bno055 = {0};
 MotorController Motor;
 TSSP Tssps;
-LightArrayVector LightVector;
 LightSensorArray LightArray;
 Camera Cam;
+Position position;
+Bluetooth bluetooth;
 
 // Structs of robot data
 BallData ballInfo;
 LineData lineInfo;
 MoveData moveInfo;
+BluetoothData bluetoothData;
 
 // Vectors
-Vector robotPosition (0,0);
-Vector ballPosition (0,0);
+Vector robotPosition(0, 0);
+Vector ballRelPosition(0, 0);
+Vector ballPosition(0, 0);
 
 // Robot Mode
 Mode playMode = Mode::undecided;
@@ -70,6 +79,8 @@ void calculateDefenseMovement();
 void calculateCorrection();
 /* --- Calulates movement of robot based on state and outAvoidance --- */
 void calculateMovement();
+/*  -- Send bluetooth data and decide playMode -- */
+void updateMode();
 /* --- Flash LED based off Timer & playMode --- */
 void playModeLED();
 /* --- Initalise the BNO --- */
@@ -104,7 +115,7 @@ void calculateOrbit(){
 
 void calculateAttackMovement(){
     // Calculate Ball State and Movement
-    if (ballInfo.exist){
+    if (ballInfo.visible()){
         // calculateOrbit(); // Calculate Movement towards ball.
         moveInfo.angle = -1;
         moveInfo.speed = 0;
@@ -127,7 +138,7 @@ void calculateAttackMovement(){
 
 void calculateDefenseMovement(){
     if (Cam.defend.visible){
-        if (ballInfo.exist){
+        if (ballInfo.visible()){
             if (angleIsInside(360 - DEFEND_CAPTURE_ANGLE, DEFEND_CAPTURE_ANGLE, ballInfo.angle) && ballInfo.strength > DEFEND_SURGE_STRENGTH && Cam.defend.distance < DEFEND_SURGE_DISTANCE){
                 // Ball infront of robot, surge forwards
                 calculateOrbit();
@@ -149,7 +160,7 @@ void calculateDefenseMovement(){
             centre(Cam.defend, DEFEND_DISTANCE);
        }
     } else {
-        if (ballInfo.exist){
+        if (ballInfo.visible()){
             // No goal, become attacker
             calculateOrbit();
             Cam.defend.face = false; // Stop correcting to goal
@@ -167,10 +178,10 @@ void calculateDefenseMovement(){
 void calculateCorrection(){
     if (Cam.attack.face && playMode == Mode::attack){ // Correct to attack goal
         double goalAngle = doubleMod(Cam.attack.angle + heading, 360);
-            moveInfo.correction = round(attackGoalTrackPID.update(doubleMod(doubleMod(heading - goalAngle, 360) + 180, 360) - 180, 0));
+        moveInfo.correction = round(attackGoalTrackPID.update(doubleMod(doubleMod(heading - goalAngle, 360) + 180, 360) - 180, 0));
 
     } else if (Cam.defend.face && playMode == Mode::defend){ // Correct to defend goal
-            double goalAngle = doubleMod(Cam.defend.angle + heading, 360);
+        double goalAngle = doubleMod(Cam.defend.angle + heading, 360);
         moveInfo.correction = round(defendGoalTrackPID.update(doubleMod(doubleMod(heading - goalAngle, 360) + 180, 360) - 180, 0));
 
     } else { // Compass correct
@@ -186,10 +197,53 @@ void calculateMovement(){
         calculateDefenseMovement();
     }
 
-    moveInfo = LightArray.calculateOutAvoidance(heading, moveInfo); // Updates movement with state of line.
+    LightArray.calculateOutAvoidance(&moveInfo, heading); // Updates movement with state of line.
 
     calculateCorrection(); // Update correction value based on goal correction state
 
+}
+
+
+void updateMode(){
+
+    Mode previousMode = playMode;
+
+    ballInfo.isOut = LightArray.isOutsideLine(heading, ballInfo.angle);
+    bluetoothData = BluetoothData(ballInfo, lineInfo, playMode, heading, robotPosition);
+    bluetooth.update(bluetoothData);
+
+
+    if (bluetooth.isConnected){
+        // Connected to  bluetooth, pick playMode
+        if (playMode == Mode::undecided){
+            // Undecided mode, pick default or opposite
+            if (bluetooth.otherData.playMode == Mode::undecided){
+                playMode = defaultMode;
+            } else {
+                playMode = bluetooth.otherData.playMode == Mode::defend ? Mode::attack : Mode::defend;
+            }
+
+        } else if (ROBOT){
+            // Default playMode decider - Defender
+
+            // Switching parameters
+
+        } else {
+            // Opposite of default decider
+            playMode = bluetooth.otherData.playMode == Mode::defend ? Mode::attack : Mode::defend;
+
+        }
+
+        // If statement for if become defender, move out of way
+
+    } else if (bluetooth.previouslyConnected){
+        // Was connected, other robot went offline, switch to defense
+        playMode = Mode::defend;
+
+    } else {
+        // Never connected, pick default mode
+        playMode = defaultMode;
+    }
 }
 
 
@@ -201,18 +255,16 @@ void setup(){
     // bnoInit();
     Motor.init();
     Tssps.init();
-    LightVector.init();
     LightArray.init();
     Cam.init();
 
     Compass.init();
 
-    defaultMode = ROBOT ? Mode::attack : Mode::defend;
-
+    defaultMode = ROBOT ? Mode::defend : Mode::attack;
+     
     playMode = Mode::defend; // Manual playMode set
-
-
-
+    
+    digitalWrite(LED_BUILTIN, LOW);
 }
 
 
@@ -221,6 +273,7 @@ void loop(){
 
     Compass.read();
     heading = Compass.heading;
+    heading = 0;
 
     // bno055_convert_float_euler_h_deg(&heading);
     Tssps.read();
@@ -230,6 +283,7 @@ void loop(){
     #if GOAL_TRACK // If using camera, update, else don't bother 
         Cam.update(); // Read Cam data
         Cam.goalTrack(); // Update goalTrack States
+        // position.calcRobotPosition(Cam, heading);
     #endif
 
     calculateMovement(); //Calculate movement values 
@@ -237,6 +291,8 @@ void loop(){
     Motor.Move(moveInfo); // Move towards target
 
     playModeLED();
+
+
 
 } 
 

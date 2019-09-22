@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Common.h>
 #include <Timer.h>
+#include <BluetoothData.h>
 
 class Bluetooth{
 

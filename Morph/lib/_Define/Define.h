@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#define ROBOT 0 //1 or 0, 1 = A
+#define ROBOT 1 //1 or 0, 1 = A
 #define ATTACK_GOAL_YELLOW false //true = Yellow, false = Blue
 #define GOAL_TRACK true
 
@@ -52,6 +52,7 @@
 #define TSSP_NO_BALL -1
 #define TSSP_READ_NUM 255
 #define BALL_CLOSE_STRENGTH 140
+#define TSSP_PERIOD 4
 
 
 // --- Movement --- //
@@ -89,7 +90,7 @@
 #define BLUETOOTH_BAUD 115200
 #define bluetoothSerial Serial5
 #define BLUETOOTH_START_BYTE 255
-#define BLUETOOTH_PACKET_SIZE 11
+#define BLUETOOTH_PACKET_SIZE 12
 #define BLUETOOTH_DISCONNECT_TIME 1000000
 #define BLUETOOTH_UPDATE_TIME 100000
 
@@ -100,7 +101,7 @@
 #define FIELD_LENGTH_CM 243
 #define GOAL_OFFSET_CM 30
 #define DEFENDING_BOX_WIDTH_CM 30
-#define FIELD_CM_WITH_GOAL (FIELD_WIDTH_CM / 2 - GOAL_OFFSET_CM)
+#define FIELD_LENGTH_WITH_GOAL (FIELD_LENGTH_CM / 2 - GOAL_OFFSET_CM)
 
 
 // --- Coords --- //

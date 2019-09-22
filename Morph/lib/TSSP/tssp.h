@@ -7,6 +7,8 @@
 #include <Debug.h>
 #include <Pins.h>
 #include <Timer.h>
+#include <BallData.h>
+#include <Vector.h>
 
 
 class TSSP{
@@ -19,6 +21,10 @@ class TSSP{
         double angleAddition;
 
     private:
+
+        void readOnce();
+        void finishedRead();
+
 
         void sortValues();
         void calculateAngleStrength(int n);
@@ -33,7 +39,9 @@ class TSSP{
         double scaledCos[TSSP_NUM] = {0};
         double scaledSin[TSSP_NUM] = {0};
 
-        Timer tsspReadTimer = Timer(833);
+        uint16_t readCount = 0;
+
+        Timer tsspReadTimer = Timer(833 * TSSP_PERIOD);
 
 };
 

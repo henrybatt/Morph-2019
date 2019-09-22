@@ -6,11 +6,15 @@
 #include <Define.h>
 #include <Debug.h>
 
+ 
+
 
 
 class Vector {
 
     public:
+
+        Vector();
 
         /* -- I & J or Arg & Mag -- */
         Vector(double _x, double _y, bool cartesian = true);
@@ -62,6 +66,10 @@ class Vector {
     
 
 };
+
+extern Vector robotPosition;
+extern Vector ballRelPosition;
+extern Vector ballPosition;
 
 
 #endif

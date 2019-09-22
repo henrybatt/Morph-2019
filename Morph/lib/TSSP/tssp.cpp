@@ -11,15 +11,30 @@ void TSSP::init(){
 void TSSP::read(){
     // Read each sensor as set number of times and sort read values into array
 
-    for (int j = 0; j < TSSP_READ_NUM; j++){
-        for (int i = 0; i < TSSP_NUM; i++){
-            if( !ROBOT &&(i == 1 || i == 3 || i == 4 || i == 5 || i == 11 || i == 13 || i== 15 || i == 16)) continue;
-            if ( ROBOT && (i == 6 || i == 1 || i == 17)) continue;
-            readValues[i] += 1 - digitalRead(pins[i]);
-        }
+    while (readCount < TSSP_READ_NUM){
+        readOnce();
     }
+
+    finishedRead();
+}
+
+
+void TSSP::readOnce(){
     for (int i = 0; i < TSSP_NUM; i++){
-        values[i] = 100 * readValues[i] / TSSP_READ_NUM;
+        if( !ROBOT &&(i == 1 || i == 3 || i == 4 || i == 5 || i == 11 || i == 13 || i== 15 || i == 16)) continue;
+        if (ROBOT && (i == 6 || i == 1 || i == 17)) continue;
+        readValues[i] += digitalReadFast(pins[i]) ^ 1;
+    }
+
+    readCount++;
+
+}
+
+
+void TSSP::finishedRead(){
+
+    for (int i = 0; i < TSSP_NUM; i++){
+        values[i] = 100 * readValues[i] / readCount;
         readValues[i] = 0;
         sortedValues[i] = 0;
         indexes[i] = 0;
@@ -27,16 +42,21 @@ void TSSP::read(){
         #if DEBUG_TSSP
             Serial.print(values[i]);
             if (i != TSSP_NUM - 1){
-                Serial.print(" ");
-            }else{
+                Serial.print("\t");
+            } else {
                 Serial.println("");
             }
         #endif
     }
 
+    readCount = 0;
+
     sortValues();
-    calculateAngleStrength(3);
+    calculateAngleStrength(4);
+
 }
+
+
 
 void TSSP::sortValues(){
     //Sort TSSP values & indexes from greatest to least
@@ -65,9 +85,10 @@ void TSSP::calculateAngleStrength(int n){
         y += sortedValues[i] * sin(degreesToRadians(indexes[i] * TSSP_NUM_MULTIPLIER));
     }
 
-    ballInfo.strength = sqrt(x * x + y * y);
-    ballInfo.exist = (ballInfo.strength != 0);
-    ballInfo.angle = ballInfo.exist ? doubleMod(radiansToDegrees(atan2(y, x)), 360) : TSSP_NO_BALL;
+    double strength = sqrt(x * x + y * y);
+    double angle = strength != 0 ? doubleMod(radiansToDegrees(atan2(y, x)), 360) : TSSP_NO_BALL;
+
+    ballInfo = BallData(angle, strength);
 
     #if DEBUG_BALL_DATA
         Serial.print(ballInfo.angle);
@@ -77,6 +98,8 @@ void TSSP::calculateAngleStrength(int n){
     #endif
 
 }
+
+
 
 double TSSP::calcAngleAddition(){
     double value = ballInfo.angle > 180 ? ballInfo.angle - 360 : ballInfo.angle;

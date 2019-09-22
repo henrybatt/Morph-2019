@@ -6,6 +6,8 @@
 #include <Pins.h>
 #include <Define.h>
 #include <Debug.h>
+#include <MoveData.h>
+#include <LineData.h>
 
 
 // Array of light sensors

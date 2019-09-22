@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Motors.h>
 #include <Common.h>
+#include <MoveData.h>
 
 class MotorController{
 public:

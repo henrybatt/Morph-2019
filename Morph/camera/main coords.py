@@ -8,7 +8,7 @@ class Scan():
 
     def __init__(self):
         self.ROBOT_1 = 1
-        self.ROBOT_2 = 0
+        self.ROBOT_0 = 0
         self.NO_DATA = 250
         self.debugCount = 0
         self.DEBUG_COUNT_MAX = 30
@@ -18,21 +18,21 @@ class Scan():
         self.robot = robot_
         if self.robot == self.ROBOT_1:
             self.thresholds = [
-            [(78, 89, -12, 16, 16, 59)],  # Yellow Goal
-            [(39, 51, -23, 7, -42, -17)]] # Blue Goal
-            self.whitebal = (-6.02073, -5.368132, 0.4617908)
-            self.window = (55, 0, 240, 240)
+            [(78, 98, -32, -8, 49, 77)],  # Yellow Goal
+            [(67, 79, -46, -5, -46, -15)]] # Blue Goal
+            self.whitebal = (-6.02073, -5.119987, -0.2064142)
+            self.window = (60, 0, 240, 240)
             self.max_rad = 140
-            self.CENTREX = 160 #120
+            self.CENTREX = 120 #160
             self.CENTREY = 120
 
-        elif self.robot == self.robot_2:
+        elif self.robot == self.ROBOT_0:
             self.thresholds = [
-            (0, 0, 0, 0, 0, 0), # Yellow Goal
-            (0, 0, 0, 0, 0, 0)] # Blue Goal
-            self.whitebal = (0, 0, 0)
-            self.window = (0, 0, 0, 0)
-            self.max_rad = 120
+            [(57, 83, -32, 15, 34, 86)],  # Yellow Goal
+            [(27, 55, -17, 20, -65, -25)]] # Blue Goal
+            self.whitebal = (-6.02073, -5.243186, -0.2762833)
+            self.window = (60, 0, 240, 240)
+            self.max_rad = 140
             self.CENTREX = 120
             self.CENTREY = 120
 
@@ -40,12 +40,12 @@ class Scan():
         sensor.reset()
         sensor.set_pixformat(sensor.RGB565)
         sensor.set_framesize(sensor.QVGA)
-        #sensor.set_windowing(self.window)
+        sensor.set_windowing(self.window)
         sensor.skip_frames(time=1000)
 
         # - Balance - #
         sensor.set_auto_whitebal(False, rgb_gain_db=self.whitebal)
-        sensor.set_brightness(3)
+        sensor.set_brightness(0)
         sensor.set_contrast(3)
         sensor.set_saturation(3)
         curr_exposure = sensor.get_exposure_us()
@@ -79,8 +79,15 @@ class Scan():
         distance = (sqrt(dx**2 + dy**2))
         return (distance)
 
+    def angle(self, object):
+        # Calculates distance towards blob
+        dx = object.cx() - (self.img.width() / 2)
+        dy = object.cy() - (self.img.height() / 2)
+        angle = (450 - degrees(atan2(dy, dx))) % 360
+        return (angle)
 
-    def sortBlobs(self,blobs, debug=False):
+
+    def sortBlobs(self, blobs, debug=False):
         # Organises blob data and ensures it is within mirror and biggest
         if len(blobs) > 0:
             for blob in sorted(blobs, key=lambda x: x.pixels(), reverse = True):
@@ -95,7 +102,7 @@ class Scan():
 
 
     def findData(self, debug=False):
-        # Find Blobs and calculate Angles and Distances
+        # Find Blobs and calculate coordinates
         yellowBlob = self.img.find_blobs(self.thresholds[0],x_stride=5, y_stride=5, area_threshold=200, pixel_threshold=200, merge=True, margin=23)
         blueBlob = self.img.find_blobs(self.thresholds[1],x_stride=5, y_stride=5, area_threshold=200, pixel_threshold=200, merge=True, margin=23)
 
@@ -149,8 +156,8 @@ while True:
 
 
     #scanner.whiteBal() #Print white balance value
-    scanner.screenShot(False) #Display radius & cross
-    data = scanner.findData(False) #Draw lines and boxs around blobs
+    scanner.screenShot(True) #Display radius & cross
+    data = scanner.findData(True) #Draw lines and boxs around blobs
     sender.sendData(data, False) #Print angle and distance
 
     #LED(2).toggle() #Flashes Green LED

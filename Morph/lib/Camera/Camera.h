@@ -40,8 +40,14 @@ class Camera{
         /* -- Find closest goal in pixels -- */
         double closestDistance();
 
+        /* -- Find closest goal in centimeters -- */
+        double closestCentimeter();
+
         /* -- If attacking goal closest -- */
         bool attackClosest();
+
+        /* -- If a goal is visible -- */
+        bool goalVisible();
 
     private:
 
@@ -62,6 +68,9 @@ class Camera{
 
         /* -- Calculate distance towards image -- */
         int calculateDistance(camImage image);
+
+        /* -- Calculate distance towards goal in centimeters -- */
+        int calculateCentimeter(int distance);
 
 
 

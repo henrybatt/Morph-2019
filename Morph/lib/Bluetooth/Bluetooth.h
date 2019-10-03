@@ -24,8 +24,7 @@ class Bluetooth{
 
         BluetoothData thisData = BluetoothData();
 
-        Timer disconnectTimer = Timer(BLUETOOTH_DISCONNECT_TIME);
-        Timer sendTimer = Timer(BLUETOOTH_UPDATE_TIME);
+        Timer disconnectTimer = Timer(BT_DISCONNECT_TIME);
 
 };
 

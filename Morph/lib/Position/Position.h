@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Common.h>
 #include <Define.h>
+#include <Debug.h>
 #include <Vector.h>
 #include <Camera.h>
 #include <MoveData.h>
@@ -12,6 +13,19 @@
 
 class Position{
     public:
+
+        // Position of robot on field
+        Vector robotPosition;
+
+        // Position of ball relative to robot
+        Vector ballRelPosition;
+
+        // Position of ball on field
+        Vector ballPosition;
+
+        // Goal Coordinates
+        Vector defendGoal = Vector(0, -(FIELD_LENGTH_CM / 2) + GOAL_OFFSET_CM);
+        Vector attackGoal = Vector(0, (FIELD_LENGTH_CM / 2) - GOAL_OFFSET_CM);
 
         /* -- Calculate robots position in cartesian form -- */
         void calcRobotPosition(Camera Cam, float heading );
@@ -24,6 +38,8 @@ class Position{
 
         /*  -- Calculate movement of coord differences -- */
         bool moveByDifference(MoveData *moveData, Vector diff);
+
+        void test();
 
     private:
 

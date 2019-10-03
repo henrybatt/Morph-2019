@@ -11,14 +11,16 @@
 #include <Camera.h>
 #include <Bluetooth.h>
 // #include<i2c_t3.h>
+
 #include <IMU.h>
 
-// #include <Vector.h>
-// #include <Mode.h>
-// #include <MoveData.h>
-// #include <LineData.h>
-// #include <BallData.h>
-// #include <BluetoothData.h>
+
+#include <Vector.h>
+#include <Mode.h>
+#include <MoveData.h>
+#include <LineData.h>
+#include <BallData.h>
+#include <BluetoothData.h>
 
 #include <Position.h>
 
@@ -37,6 +39,7 @@ Timer attackLEDTimer(800000);
 Timer defenceLEDTimer(400000);
 Timer undecidedLEDTimer(200000);
 
+Timer BTSendTimer = Timer(BT_UPDATE_TIME);
 
 bool ledOn = false; // State of LED
 float heading; // IMU heading
@@ -49,23 +52,25 @@ LightSensorArray LightArray;
 Camera Cam;
 Position position;
 Bluetooth bluetooth;
+Vector currentAcceleration;
+
+IMU Compass;
 
 // Structs of robot data
+
+// Global
 BallData ballInfo;
 LineData lineInfo;
 MoveData moveInfo;
+
 BluetoothData bluetoothData;
 
-// Vectors
-Vector robotPosition(0, 0);
-Vector ballRelPosition(0, 0);
-Vector ballPosition(0, 0);
 
 // Robot Mode
 Mode playMode = Mode::undecided;
 Mode defaultMode;
 
-IMU Compass;
+// IMU Compass;
 
 /* --- Centre to goal, idleDist away --- */
 void centre(goalData goal, int idleDist);
@@ -103,11 +108,14 @@ void centre(goalData goal, int idleDist){
 void calculateOrbit(){
     moveInfo.angle = doubleMod(ballInfo.angle + Tssps.calcAngleAddition(), 360); // Orbit Angle
 
+    int fastSpeed = Cam.attack.face ? ORBIT_FAST_SPEED : ORBIT_FAST_SPEED - 10;
+    int slowSpeed = Cam.attack.face ? ORBIT_SLOW_SPEED : ORBIT_SLOW_SPEED + 10;
+
     //If ball infront of capture zone, surge forwards fast, else move at a modular speed
-     if (ballInfo.strength > ATTACK_SURGE_STRENGTH && angleIsInside(360 - ATTACK_CAPTURE_ANGLE, ATTACK_CAPTURE_ANGLE, ballInfo.angle)){ 
-        moveInfo.speed = ORBIT_FAST_SPEED;
+    if (ballInfo.strength > ATTACK_SURGE_STRENGTH && angleIsInside(360 - ATTACK_CAPTURE_ANGLE, ATTACK_CAPTURE_ANGLE, ballInfo.angle)){
+        moveInfo.speed = fastSpeed;
     } else {
-        moveInfo.speed = ORBIT_SLOW_SPEED + (double)(ORBIT_FAST_SPEED - ORBIT_SLOW_SPEED) * (1.0 - abs(Tssps.angleAddition) / (double)90.0);
+        moveInfo.speed = slowSpeed + (double)(fastSpeed - slowSpeed) * (1.0 - abs(Tssps.angleAddition) / (double)90.0);
     }
     
 }
@@ -115,17 +123,20 @@ void calculateOrbit(){
 
 void calculateAttackMovement(){
     // Calculate Ball State and Movement
-    if (ballInfo.visible()){
-        // calculateOrbit(); // Calculate Movement towards ball.
-        moveInfo.angle = -1;
-        moveInfo.speed = 0;
 
-    } else { // No ball visible, if defending goal visible sit in-line
-        if (Cam.defend.visible){
-            // No ball visible, move to idle spot.
-            centre(Cam.defend, ATTACK_IDLE_DISTANCE);
-            // moveInfo.angle = -1;
-            // moveInfo.speed = 0;
+    if (bluetooth.otherData.ballData.isOut){
+        // Defender see's ball isOut, move to centre of field
+        centre(Cam.defend, ATTACK_IDLE_DISTANCE_DFG);
+        Cam.attack.face = false;
+
+    } else if (ballInfo.visible()){
+        calculateOrbit(); // Calculate Movement towards ball.
+
+    } else { // No ball visible, if goal visible sit in-line
+        
+        if (Cam.goalVisible()){
+            position.moveToCoord(&moveInfo, Vector(0, -10));
+
         } else {
             // No ball or goal visible, stop
             moveInfo.angle = -1;
@@ -142,6 +153,7 @@ void calculateDefenseMovement(){
             if (angleIsInside(360 - DEFEND_CAPTURE_ANGLE, DEFEND_CAPTURE_ANGLE, ballInfo.angle) && ballInfo.strength > DEFEND_SURGE_STRENGTH && Cam.defend.distance < DEFEND_SURGE_DISTANCE){
                 // Ball infront of robot, surge forwards
                 calculateOrbit();
+                Cam.defend.face = false;
                 
             } else if (!angleIsInside(270, 90, ballInfo.angle)){
                 // Ball behind robot
@@ -157,7 +169,9 @@ void calculateDefenseMovement(){
 
         } else {
             // No ball, centre to goal
-            centre(Cam.defend, DEFEND_DISTANCE);
+            // centre(Cam.defend, DEFEND_DISTANCE);
+            position.moveToCoord(&moveInfo, Vector(0, position.defendGoal.j + DEFEND_DISTANCE_CM));
+            Cam.defend.face = false;
        }
     } else {
         if (ballInfo.visible()){
@@ -171,6 +185,7 @@ void calculateDefenseMovement(){
             moveInfo.speed = 0;
         }
     }
+
 
 }
 
@@ -204,14 +219,21 @@ void calculateMovement(){
 }
 
 
+bool shouldSwitchMode(BluetoothData attacker, BluetoothData defender){
+    return (angleIsInside(360 - SWITCH_DEFEND_ANGLE, SWITCH_DEFEND_ANGLE, defender.ballData.angle) && defender.ballData.strength > SWITCH_DEFEND_STRENGTH)
+            && ((angleIsInside(360 - SWITCH_ATTACK_ANGLE, SWITCH_ATTACK_ANGLE, attacker.ballData.angle) && attacker.ballData.strength < SWITCH_ATTACK_STRENGTH) 
+                || attacker.ballData.strength <  SWITCH_ATTACK_FAR_STRENGTH)
+            && (attacker.lineData.onField && defender.lineData.onField);
+}
+
+
 void updateMode(){
 
     Mode previousMode = playMode;
 
     ballInfo.isOut = LightArray.isOutsideLine(heading, ballInfo.angle);
-    bluetoothData = BluetoothData(ballInfo, lineInfo, playMode, heading, robotPosition);
+    bluetoothData = BluetoothData(ballInfo, lineInfo, playMode, heading, position.robotPosition);
     bluetooth.update(bluetoothData);
-
 
     if (bluetooth.isConnected){
         // Connected to  bluetooth, pick playMode
@@ -225,8 +247,10 @@ void updateMode(){
 
         } else if (ROBOT){
             // Default playMode decider - Defender
-
-            // Switching parameters
+            if (shouldSwitchMode((playMode == Mode::attack ? bluetoothData : bluetooth.otherData), 
+                                (playMode == Mode::defend ? bluetoothData : bluetooth.otherData))){
+                playMode = playMode == Mode::defend ? Mode::attack : Mode::defend;
+            }
 
         } else {
             // Opposite of default decider
@@ -248,6 +272,7 @@ void updateMode(){
 
 
 void setup(){
+    Serial.begin(9600);
     pinMode(LED_BUILTIN, OUTPUT); //Setup Teensy LED
     digitalWrite(LED_BUILTIN, HIGH);
 
@@ -257,6 +282,7 @@ void setup(){
     Tssps.init();
     LightArray.init();
     Cam.init();
+    bluetooth.init();
 
     Compass.init();
 
@@ -271,20 +297,23 @@ void setup(){
 void loop(){
     // Read from libraries to find data
 
+    // bno055_convert_float_euler_h_deg(&heading);
+
     Compass.read();
     heading = Compass.heading;
-    heading = 0;
 
-    // bno055_convert_float_euler_h_deg(&heading);
     Tssps.read();
     LightArray.update(heading);
-
 
     #if GOAL_TRACK // If using camera, update, else don't bother 
         Cam.update(); // Read Cam data
         Cam.goalTrack(); // Update goalTrack States
-        // position.calcRobotPosition(Cam, heading);
+        position.calcRobotPosition(Cam, heading);
     #endif
+
+    if (BTSendTimer.timeHasPassed()){
+        updateMode();
+    }
 
     calculateMovement(); //Calculate movement values 
 
@@ -292,14 +321,12 @@ void loop(){
 
     playModeLED();
 
-
-
 } 
 
 /*
 void bnoInit(){
     delay(100);
-    // Wire.begin();
+    Wire.begin();
     // setup BNO055 driver
     bno055.bus_read = bno055_read;
     bno055.bus_write = bno055_write;

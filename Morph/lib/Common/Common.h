@@ -72,17 +72,17 @@ struct Vector3D {
 #define HEADING_KD 0.21
 #define HEADING_MAX_CORRECTION 255
 
-#define X_MOVEMENT_KP 5
+#define X_MOVEMENT_KP 4//5
 #define X_MOVEMENT_KI 0
-#define X_MOVEMENT_KD 0.3
-#define X_MOVEMENT_MAX 240
+#define X_MOVEMENT_KD 0.5//0.3
+#define X_MOVEMENT_MAX 200
 
-#define Y_MOVEMENT_KP 10
+#define Y_MOVEMENT_KP 2 //10
 #define Y_MOVEMENT_KI 0
-#define Y_MOVEMENT_KD 0.2
-#define Y_MOVEMENT_MAX 230
+#define Y_MOVEMENT_KD 0 //0.2
+#define Y_MOVEMENT_MAX 200
 
-#define TO_COORD_KP 1.5
+#define TO_COORD_KP 5
 #define TO_COORD_KI 0
 #define TO_COORD_KD 0
 #define TO_COORD_MAX_SPEED 100

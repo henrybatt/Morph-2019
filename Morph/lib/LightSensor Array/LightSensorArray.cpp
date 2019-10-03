@@ -38,8 +38,10 @@ int LightSensorArray::readSensor(int sensor){
 
 void LightSensorArray::update(float heading){
     // Reads all 32 Light Sensors
+    int data[32];
     for (int i = 0; i < LS_NUM; i++){
         onWhite[i] = (readSensor(i) > thresholds[i]);
+        data[i] = readSensor(i);
     }
 
     // Updates onWhite state if others around it are
@@ -50,7 +52,7 @@ void LightSensorArray::update(float heading){
             }
         }
         #if DEBUG_LIGHT
-            Serial.print(onWhite[i]);
+            Serial.print(data[i]);
             if ( i != LS_NUM - 1){
                 Serial.print(" ");
             } else{
@@ -96,13 +98,11 @@ void LightSensorArray::calculateClusters() {
         ends[numClusters - 1] = LS_NUM -1;
     }
      // If first and last light sensor see line, merge both clusters together
-    if (numClusters > 1){
-        if (onWhite[0] && onWhite[LS_NUM - 1]){
-            starts[0] = starts[numClusters - 1];
-            starts[numClusters - 1] = -1;
-            ends[numClusters - 1] = -1;
-            numClusters -=  1;
-        }
+    if (onWhite[0] && onWhite[LS_NUM - 1]){
+        starts[0] = starts[numClusters - 1];
+        starts[numClusters - 1] = -1;
+        ends[numClusters - 1] = -1;
+        numClusters -=  1;
     }
 }
 

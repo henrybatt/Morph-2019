@@ -72,18 +72,22 @@ void Camera::calculateGoal(goalData *goal, camImage image, bool defend){
 
 
 int Camera::calculateAngle(camImage image){
-    int x = image.x - (CAM_IMAGE_WIDTH / 2);
-    int y = image.y - (CAM_IMAGE_HEIGHT / 2);
+    int x = image.x - CAM_CENTRE_X;
+    int y = image.y - CAM_CENTRE_Y;
 
     return image.visible ? mod(450 - round(radiansToDegrees(atan2(y,x))), 360) : -1;
 }
 
 
 int Camera::calculateDistance(camImage image){
-    int x = image.x - (CAM_IMAGE_WIDTH / 2);
-    int y = image.y - (CAM_IMAGE_HEIGHT / 2);
+    int x = image.x - CAM_CENTRE_X;
+    int y = image.y - CAM_CENTRE_Y;
 
     return image.visible ? sqrt(x * x + y * y) : 0;
+}
+
+int Camera::calculateCentimeter(int distance){
+    return 0.00000353067 * pow(MATH_E, 0.0288427 * (distance + 500)) - 25.0921;
 }
 
 
@@ -122,6 +126,23 @@ double Camera::closestDistance(){
 }
 
 
+double Camera::closestCentimeter(){
+    if(attack.visible || defend.visible){
+        if(!attack.visible){
+            return calculateCentimeter(defend.distance);
+        } else if (!defend.visible){
+            return calculateCentimeter(attack.distance);
+        } else {
+            return min(calculateCentimeter(attack.distance), calculateCentimeter(defend.distance));
+        }
+    }
+    return 0;
+}
+
 bool Camera::attackClosest(){
     return closestDistance() == attack.distance;
+}
+
+bool Camera::goalVisible(){
+    return (attack.visible || defend.visible); 
 }

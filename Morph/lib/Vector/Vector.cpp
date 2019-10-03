@@ -1,6 +1,10 @@
 #include "Vector.h"
 
 
+Vector::Vector(){
+    getPolar(0,0);
+}
+
 Vector::Vector(double _x, double _y, bool cartesian){
     cartesian ? getPolar(_x, _y) : getCartesian(_x, _y);
 }

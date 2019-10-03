@@ -27,9 +27,14 @@ class BallData{
             return strength != 0;
         }
 
- 
+
+        double distance(){
+            return 123;
+        }
+
+
         Vector vector(float heading = 0){
-            return Vector(doubleMod(angle + heading, 360), 123 /*Strength Calculation*/, false);
+            return Vector(doubleMod(angle + heading, 360), distance(), false);
         } 
 
 

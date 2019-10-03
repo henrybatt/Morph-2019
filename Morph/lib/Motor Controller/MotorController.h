@@ -5,6 +5,7 @@
 #include <Motors.h>
 #include <Common.h>
 #include <MoveData.h>
+#include <Vector.h>
 
 class MotorController{
 public:
@@ -18,6 +19,8 @@ public:
   void Turn(int speed);
   void Brake();
   int weights [4] = {0, 0, 0, 0};
+
+  Vector currentAcceleration;
 
 };
 

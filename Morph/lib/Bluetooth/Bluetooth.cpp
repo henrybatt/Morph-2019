@@ -1,16 +1,14 @@
 #include <Bluetooth.h>
 
 void Bluetooth::init(){
-    bluetoothSerial.begin(BLUETOOTH_BAUD);
+    BTSerial.begin(BT_BAUD);
 }
 
 void Bluetooth::update(BluetoothData data){
 
     thisData = data;
 
-    if (sendTimer.timeHasPassed()){
-        send();
-    }
+    send();
 
     recieve();
 
@@ -20,46 +18,47 @@ void Bluetooth::update(BluetoothData data){
 void Bluetooth::send(){
 
     // Starting Byte
-    bluetoothSerial.write(BLUETOOTH_START_BYTE);
+    BTSerial.write(BT_START_BYTE);
 
     // Ball Angle
-    bluetoothSerial.write(highByte(thisData.ballData.angle));
-    bluetoothSerial.write(lowByte(thisData.ballData.angle));
+    BTSerial.write(highByte(thisData.ballData.angle));
+    BTSerial.write(lowByte(thisData.ballData.angle));
 
     // Ball Strength
-    bluetoothSerial.write(highByte(thisData.ballData.strength));
-    bluetoothSerial.write(lowByte(thisData.ballData.strength));
+    BTSerial.write(highByte(thisData.ballData.strength));
+    BTSerial.write(lowByte(thisData.ballData.strength));
 
     // Ball Out
-    bluetoothSerial.write(thisData.ballData.isOut);
+    BTSerial.write(thisData.ballData.isOut);
 
     // OnField
-    bluetoothSerial.write(thisData.lineData.onField);
+    BTSerial.write(thisData.lineData.onField);
 
     // PlayMode
-    bluetoothSerial.write(thisData.playMode);
+    BTSerial.write(thisData.playMode);
 
     // Heading
-    bluetoothSerial.write(highByte(thisData.heading));
-    bluetoothSerial.write(lowByte(thisData.heading));
+    BTSerial.write(highByte(thisData.heading));
+    BTSerial.write(lowByte(thisData.heading));
 
     // Robot Position
-    bluetoothSerial.write(highByte(round(thisData.robotPosition.i)));
-    bluetoothSerial.write(lowByte(round(thisData.robotPosition.j)));
+    BTSerial.write(highByte(round(thisData.robotPosition.i)));
+    BTSerial.write(lowByte(round(thisData.robotPosition.i)));
 
+    BTSerial.write(highByte(round(thisData.robotPosition.j)));
+    BTSerial.write(lowByte(round(thisData.robotPosition.j)));
 
 }
 
 void Bluetooth::recieve(){
 
-    while (bluetoothSerial.available() >= BLUETOOTH_PACKET_SIZE){
-        uint8_t firstByte = bluetoothSerial.read();
+    while (BTSerial.available() >= BT_PACKET_SIZE){
 
-        if (firstByte == BLUETOOTH_START_BYTE){
-            uint8_t bluetoothBuffer[BLUETOOTH_PACKET_SIZE - 1];
+        if (BTSerial.read() == BT_START_BYTE){
+            uint8_t bluetoothBuffer[BT_PACKET_SIZE - 1];
 
-            for (int i = 0; i < BLUETOOTH_PACKET_SIZE - 1; i++){
-                bluetoothBuffer[i] = bluetoothSerial.read();
+            for (int i = 0; i < BT_PACKET_SIZE - 1; i++){
+                bluetoothBuffer[i] = BTSerial.read();
             }
 
             disconnectTimer.update();
@@ -68,6 +67,7 @@ void Bluetooth::recieve(){
             otherData.lineData = LineData(-1, 0, bluetoothBuffer[5]);
             otherData.playMode = static_cast<Mode>(bluetoothBuffer[6]);
             otherData.heading = (bluetoothBuffer[7] << 8 | bluetoothBuffer[8]);
+            otherData.robotPosition = Vector((bluetoothBuffer[9] << 8 | bluetoothBuffer[10]), (bluetoothBuffer[11] << 8 | bluetoothBuffer[12]));
 
 
         }

@@ -11,7 +11,10 @@ void TSSP::init(){
 void TSSP::read(){
     // Read each sensor as set number of times and sort read values into array
 
-    while (readCount < TSSP_READ_NUM){
+    // while (readCount < TSSP_READ_NUM){
+    //     readOnce();
+    // }
+    for (int i = 0; i < TSSP_READ_NUM; i++){
         readOnce();
     }
 
@@ -21,8 +24,6 @@ void TSSP::read(){
 
 void TSSP::readOnce(){
     for (int i = 0; i < TSSP_NUM; i++){
-        if( !ROBOT &&(i == 1 || i == 3 || i == 4 || i == 5 || i == 11 || i == 13 || i== 15 || i == 16)) continue;
-        if (ROBOT && (i == 6 || i == 1 || i == 17)) continue;
         readValues[i] += digitalReadFast(pins[i]) ^ 1;
     }
 
@@ -34,7 +35,7 @@ void TSSP::readOnce(){
 void TSSP::finishedRead(){
 
     for (int i = 0; i < TSSP_NUM; i++){
-        values[i] = 100 * readValues[i] / readCount;
+        values[i] = 100 * readValues[i] / TSSP_READ_NUM;
         readValues[i] = 0;
         sortedValues[i] = 0;
         indexes[i] = 0;

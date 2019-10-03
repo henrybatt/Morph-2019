@@ -13,15 +13,21 @@ void  Position::calcRobotPosition(Camera Cam, float _heading){
         int angle = Cam.attackClosest() ? Cam.attack.angle  : mod(Cam.defend.angle + 180, 360);
         angle = mod(angle + heading, 360);
 
-        double distance = Cam.closestDistance();
+        double distance = Cam.closestCentimeter();
 
         // Decide if in attacking or defending side of field to determine what quadrant group were in. (Positive or negative y)
         int quadrant = ((Cam.attackClosest()) ? 1 : -1);
 
         // Robot Position calculation. Polar > Cartesian
         int i = constrain(distance * -sin(degreesToRadians(angle)), (-FIELD_WIDTH_CM / 2), (FIELD_WIDTH_CM / 2));
-        int j = FIELD_LENGTH_WITH_GOAL * quadrant  + (distance * -cos(degreesToRadians(angle)));
+        int j = constrain(FIELD_LENGTH_WITH_GOAL * quadrant  + (distance * -cos(degreesToRadians(angle))), (-FIELD_LENGTH_CM / 2), (FIELD_LENGTH_CM / 2));
         robotPosition = Vector(i, j);
+
+        #if DEBUG_POSITION
+            Serial.print(robotPosition.i);
+            Serial.print(" , ");
+            Serial.println(robotPosition.j);
+        #endif
     }
 
 }
@@ -40,10 +46,9 @@ bool Position::moveToCoord(MoveData *moveData,  Vector vector){
         return moveByDifference(*&moveData, vector - robotPosition);
     } else {
         //Cannot calculate position, stop
-        *moveData = MoveData(0,0);
+        *moveData = MoveData(-1,0);
+        return false;
     }
-
-    return false;
 
 }
 
@@ -51,13 +56,17 @@ bool Position::moveToCoord(MoveData *moveData,  Vector vector){
 bool Position::moveByDifference(MoveData *moveData, Vector diff){
     if (diff.mag < COORD_THRESHOLD_DISTANCE){
         //At coords, stop
-        *moveData = MoveData(0,0);
+        *moveData = MoveData(-1,0);
         return true;
     } else {
         // Calculate direction towards coords
         *moveData = MoveData(mod(diff.arg - heading, 360), abs(coordPID.update(diff.mag, 0)));
+        return false;
     }
 
-    return false;
+}
+
+void Position::test(){
+
 
 }

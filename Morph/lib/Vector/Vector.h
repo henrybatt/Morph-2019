@@ -67,9 +67,5 @@ class Vector {
 
 };
 
-extern Vector robotPosition;
-extern Vector ballRelPosition;
-extern Vector ballPosition;
-
 
 #endif

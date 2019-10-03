@@ -12,8 +12,18 @@ void MotorController::init(){
 
 void MotorController::Move(MoveData moveInfo){
 
-  int angle = moveInfo.angle;
-  int speed = moveInfo.speed;
+     #if ACCELERATION
+        Vector optimal = Vector(moveInfo.angle, MAX_ACCELERATION * moveInfo.speed / 255, false);
+        Vector output = currentAcceleration + optimal;
+        currentAcceleration = output * (1 - MAX_ACCELERATION);
+        int angle = output.arg;
+        int speed = output.mag * 255;
+    #else 
+        int angle = moveInfo.angle;
+        int speed = moveInfo.speed;
+    #endif
+
+
   int rotation = moveInfo.correction;
 
   if(speed!=0){
@@ -25,9 +35,6 @@ void MotorController::Move(MoveData moveInfo){
         cos(degreesToRadians(-45+90)-angRad),
         cos(degreesToRadians(-135+90)-angRad)
 
-        // cos(degreesToRadians(300+90-angRad)),
-        // cos(degreesToRadians(180+90 - angRad)),
-        // cos(degreesToRadians(60+90 - angRad))
     };
 
 
@@ -46,25 +53,12 @@ void MotorController::Move(MoveData moveInfo){
     for(int i = 0; i < 4; i++){
       weights[i] = round(weights[i]*changeFactor);
     }
-      // Serial.print("Weights 0 = ");
-      // Serial.print(weights[0]);
-      // Serial.print("Weights 1 = ");
-      // Serial.print(weights[1]);
-      // Serial.print("Weights 2 = ");
-      // Serial.print(weights[2]);
-      // Serial.print("Weights 3 = ");
-      // Serial.print(weights[3]);
+
       motorFrontRight.Move(weights[1]);
       motorFrontLeft.Move(weights[3]);
       motorBackRight.Move(weights[0]);
       motorBackLeft.Move(weights[2]);
-      //Serial.print(weights[1]);
-      //Serial.print("\t");
-      //Serial.print(-weights[3]);
-      //Serial.print("\t");
-      //Serial.print(weights[0]);
-      //Serial.print("\t");
-      //Serial.println(weights[2]);
+
     }
   else{
     rotation = constrain(rotation, -255, 255);

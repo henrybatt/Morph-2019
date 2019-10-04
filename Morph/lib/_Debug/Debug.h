@@ -9,7 +9,7 @@
 #define DEBUG_LINE_DATA 0
 #define DEBUG_CAMERA 0
 #define DEBUG_CAMERA_RAW 0
-#define DEBUG_POSITION 1
+#define DEBUG_POSITION 0
 
 #define DEBUG_MANUAL 1
 

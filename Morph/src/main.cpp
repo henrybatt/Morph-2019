@@ -96,11 +96,12 @@ void setup();
 void loop();
 
 
-void centre(goalData goal, int idleDist){
+void centre(goalData goal, int idleDist, bool isAttack){
     double goalAngle = doubleMod(goal.angle + heading, 360);
     double xmoveInfo = -xPID.update(goal.distance * sin(degreesToRadians(goalAngle)), 0);
     double ymoveInfo = -yPID.update(goal.distance * cos(degreesToRadians(goalAngle)), idleDist);
-    moveInfo.angle = doubleMod(radiansToDegrees(atan2(xmoveInfo, ymoveInfo)) - heading + 180, 360);
+    moveInfo.angle = isAttack ? doubleMod(radiansToDegrees(atan2(xmoveInfo, ymoveInfo)) - heading, 360)
+                                : doubleMod(radiansToDegrees(atan2(xmoveInfo, ymoveInfo)) - heading + 180, 360);
     moveInfo.speed = sqrt(pow(xmoveInfo,2) + pow(ymoveInfo,2));
 }
 
@@ -126,7 +127,7 @@ void calculateAttackMovement(){
 
     if (bluetooth.otherData.ballData.isOut){
         // Defender see's ball isOut, move to centre of field
-        centre(Cam.defend, ATTACK_IDLE_DISTANCE_DFG);
+        centre(Cam.defend, ATTACK_IDLE_DISTANCE_DFG, false);
         Cam.attack.face = false;
 
     } else if (ballInfo.visible()){
@@ -134,8 +135,15 @@ void calculateAttackMovement(){
 
     } else { // No ball visible, if goal visible sit in-line
         
-        if (Cam.goalVisible()){
-            position.moveToCoord(&moveInfo, Vector(0, -10));
+        if (ATTACK_CENTERING && Cam.goalVisible()){
+
+            if (Cam.attackClosest()){
+                centre(Cam.attack, ATTACK_IDLE_DISTANCE_ATG, true);
+                Cam.attack.face = false;
+            } else {
+                centre(Cam.defend, ATTACK_IDLE_DISTANCE_DFG, false);
+                Cam.attack.face = false;
+            }
 
         } else {
             // No ball or goal visible, stop
@@ -169,8 +177,8 @@ void calculateDefenseMovement(){
 
         } else {
             // No ball, centre to goal
-            // centre(Cam.defend, DEFEND_DISTANCE);
-            position.moveToCoord(&moveInfo, Vector(0, position.defendGoal.j + DEFEND_DISTANCE_CM));
+            centre(Cam.defend, DEFEND_DISTANCE, false);
+            // position.moveToCoord(&moveInfo, Vector(0, position.defendGoal.j + DEFEND_DISTANCE_CM));
             Cam.defend.face = false;
        }
     } else {
@@ -236,6 +244,7 @@ void updateMode(){
     bluetooth.update(bluetoothData);
 
     if (bluetooth.isConnected){
+
         // Connected to  bluetooth, pick playMode
         if (playMode == Mode::undecided){
             // Undecided mode, pick default or opposite
@@ -288,7 +297,7 @@ void setup(){
 
     defaultMode = ROBOT ? Mode::defend : Mode::attack;
      
-    playMode = Mode::attack; // Manual playMode set
+    // playMode = Mode::defend; // Manual playMode set
     
     digitalWrite(LED_BUILTIN, LOW);
 }
@@ -308,7 +317,7 @@ void loop(){
     #if GOAL_TRACK // If using camera, update, else don't bother 
         Cam.update(); // Read Cam data
         Cam.goalTrack(); // Update goalTrack States
-        position.calcRobotPosition(Cam, heading);
+        // position.calcRobotPosition(Cam, heading);
     #endif
 
     if (BTSendTimer.timeHasPassed()){

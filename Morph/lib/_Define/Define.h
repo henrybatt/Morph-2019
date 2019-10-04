@@ -3,10 +3,9 @@
 
 #include <Arduino.h>
 
-#define ROBOT 1 //1 or 0, 1 = A
-#define ATTACK_GOAL_YELLOW true //true = Yellow, false = Blue
+#define ROBOT 0 //1 or 0, 1 = A
+#define ATTACK_GOAL_YELLOW false //true = Yellow, false = Blue
 #define GOAL_TRACK true
-
 
 // --- Movement Speed --- //
 #define ORBIT_FAST_SPEED 200// Vertical movement of orbit
@@ -15,8 +14,8 @@
 #define ACCELERATION true
 #define MAX_ACCELERATION 0.1
 
-#define LINE_OVER_SPEED 120 // Speed when all the way off line
-#define LINE_SPEED 100 //75 // Modular speed to cross over line (2 times min, half max)
+#define LINE_OVER_SPEED 200 // Speed when all the way off line
+#define LINE_SPEED 125 //75 // Modular speed to cross over line (2 times min, half max)
 #define LINE_SPEED_CLOSE 75 // Speed when movement towards ball is close to line
 
 
@@ -43,8 +42,8 @@
 #define LINE_CORNER_ANGLE_THRESHOLD 30 // If angle mod 90 greater than value and less than 90 - value, must be on corner
 #define LINE_BUFFER -10 // If orbit angle within line angle and buffer, must want to move outside line
 #define LINE_BUFFER_CORNER -10 // ^
-#define LINE_SIZE_BIG 0.5 // If line size bigger than move back into field
-#define LINE_SIZE_SMALL 0.2 // If line size bigger than this but smaller than bigger, sit on line if want to orbit out
+#define LINE_SIZE_BIG 0.4 // If line size bigger than move back into field
+#define LINE_SIZE_SMALL 0.1 // If line size bigger than this but smaller than bigger, sit on line if want to orbit out
 
 
 // --- Ball Data --- //
@@ -127,34 +126,35 @@
 
 // Ball must be within front of the defender and close
 #define SWITCH_DEFEND_ANGLE 20
-#define SWITCH_DEFEND_STRENGTH 200
+#define SWITCH_DEFEND_STRENGTH 180
 
 // AND in front of attacker and semi far away
 #define SWITCH_ATTACK_ANGLE 90
-#define SWITCH_ATTACK_STRENGTH 160
+#define SWITCH_ATTACK_STRENGTH 140
 
 // OR far from attacker
-#define SWITCH_ATTACK_FAR_STRENGTH 130
+#define SWITCH_ATTACK_FAR_STRENGTH 110
 
 
 // --- Defender --- //
-#define DEFEND_DISTANCE 73//52//60
+#define DEFEND_DISTANCE 74//65//60
 #define DEFEND_DISTANCE_CM 25 //Distance from goal in CM to sit at
 
-#define DEFEND_SURGE_STRENGTH 180 // Strength of ball to surge
+#define DEFEND_SURGE_STRENGTH 150 // Strength of ball to surge
 
 #define DEFEND_CAPTURE_ANGLE 20 // Angle range of ball to surge
 
-#define DEFEND_SURGE_DISTANCE 89 //70 // Distance from goal to surge till
+#define DEFEND_SURGE_DISTANCE 94//82//82  //70 // Distance from goal to surge till
 #define DEFEND_SURGE_Y -30
 
 // --- Attacker --- //
-#define ATTACK_IDLE_DISTANCE_DFG 60 // Distance from defending goal to sit at when no ball
-#define ATTACK_IDLE_DISTANCE_ATG 109 // Distance from attacking goal to sit at when no ball
+#define ATTACK_CENTERING false 
+#define ATTACK_IDLE_DISTANCE_DFG 82 // Distance from defending goal to sit at when no ball
+#define ATTACK_IDLE_DISTANCE_ATG 100 // Distance from attacking goal to sit at when no ball
 
-#define ATTACK_SURGE_STRENGTH 140 // Strength of ball to surge 
+#define ATTACK_SURGE_STRENGTH 180 // Strength of ball to surge 
 
-#define ATTACK_CAPTURE_ANGLE 10 // Angle range of ball to surge
+#define ATTACK_CAPTURE_ANGLE 8 // Angle range of ball to surge
 
 
 

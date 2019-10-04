@@ -23,7 +23,6 @@ void MotorController::Move(MoveData moveInfo){
         int speed = moveInfo.speed;
     #endif
 
-
   int rotation = moveInfo.correction;
 
   if(speed!=0){

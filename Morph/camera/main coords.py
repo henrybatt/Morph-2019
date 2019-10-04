@@ -18,9 +18,9 @@ class Scan():
         self.robot = robot_
         if self.robot == self.ROBOT_1:
             self.thresholds = [
-            [(54, 97, -17, 127, 41, 106)],  # Yellow Goal
-            [(67, 79, -46, -5, -46, -15)]] # Blue Goal
-            self.whitebal = (-5.623446, -6.02073, -1.887871)
+            [(76, 98, -32, -4, 31, 75)],  # Yellow Goal
+            [(65, 75, -15, 2, -53, -29)]] # Blue Goal
+            self.whitebal = (-6.02073, -6.02073, 0.3322737)
             self.window = (25, 0, 240, 240)
             self.max_rad = 140
             self.CENTREX = 120 #160
@@ -28,9 +28,9 @@ class Scan():
 
         elif self.robot == self.ROBOT_0:
             self.thresholds = [
-            [(57, 83, -32, 15, 34, 86)],  # Yellow Goal
+            [(85, 97, -24, 11, 40, 67)],  # Yellow Goal
             [(27, 55, -17, 20, -65, -25)]] # Blue Goal
-            self.whitebal = (-6.02073, -5.243186, -0.2762833)
+            self.whitebal = (-6.02073, -5.753914, 0.2668007)
             self.window = (60, 0, 240, 240)
             self.max_rad = 140
             self.CENTREX = 120
@@ -49,7 +49,7 @@ class Scan():
         sensor.set_contrast(3)
         sensor.set_saturation(3)
         curr_exposure = sensor.get_exposure_us()
-        sensor.set_auto_exposure(False, exposure_us=int(curr_exposure*1))
+        sensor.set_auto_exposure(False, exposure_us=int(curr_exposure*0.7))
         curr_gain = sensor.get_gain_db()
         sensor.set_auto_gain(False, gain_db=curr_gain)
         sensor.set_auto_gain(False, gain_db=15)
@@ -146,7 +146,7 @@ LED(1).on()
 scanner = Scan()
 sender = Sender()
 
-scanner.init(scanner.ROBOT_1)
+scanner.init(scanner.ROBOT_0)
 
 LED(1).off()
 

@@ -288,7 +288,7 @@ void setup(){
 
     defaultMode = ROBOT ? Mode::defend : Mode::attack;
      
-    playMode = Mode::defend; // Manual playMode set
+    playMode = Mode::attack; // Manual playMode set
     
     digitalWrite(LED_BUILTIN, LOW);
 }

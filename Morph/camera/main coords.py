@@ -18,28 +18,28 @@ class Scan():
         self.robot = robot_
         if self.robot == self.ROBOT_1:
             self.thresholds = [
-            [(76, 98, -32, -4, 31, 75)],  # Yellow Goal
+            [(54, 84, -10, 17, 34, 85)],  # Yellow Goal
             [(65, 75, -15, 2, -53, -29)]] # Blue Goal
-            self.whitebal = (-6.02073, -6.02073, 0.3322737)
-            self.window = (25, 0, 240, 240)
-            self.max_rad = 140
-            self.CENTREX = 120 #160
-            self.CENTREY = 120
+            self.whitebal = (-5.886325, -6.02073, -2.058088)
+            self.window = (12, 0, 120, 120)
+            self.max_rad = 70
+            self.CENTREX = 60
+            self.CENTREY = 60
 
         elif self.robot == self.ROBOT_0:
             self.thresholds = [
-            [(85, 97, -24, 11, 40, 67)],  # Yellow Goal
+            [(46, 90, -15, 22, 35, 92)],  # Yellow Goal
             [(27, 55, -17, 20, -65, -25)]] # Blue Goal
-            self.whitebal = (-6.02073, -5.753914, 0.2668007)
-            self.window = (60, 0, 240, 240)
-            self.max_rad = 140
-            self.CENTREX = 120
-            self.CENTREY = 120
+            self.whitebal = (-6.02073, -6.02073, -0.4176831)
+            self.window = (18, 0, 120, 120)
+            self.max_rad = 80
+            self.CENTREX = 60
+            self.CENTREY = 60
 
         # - Sensor Setup - #
         sensor.reset()
         sensor.set_pixformat(sensor.RGB565)
-        sensor.set_framesize(sensor.QVGA)
+        sensor.set_framesize(sensor.QQVGA)
         sensor.set_windowing(self.window)
         sensor.skip_frames(time=1000)
 
@@ -146,7 +146,7 @@ LED(1).on()
 scanner = Scan()
 sender = Sender()
 
-scanner.init(scanner.ROBOT_0)
+scanner.init(scanner.ROBOT_1)
 
 LED(1).off()
 
@@ -156,8 +156,8 @@ while True:
 
 
     #scanner.whiteBal() #Print white balance value
-    scanner.screenShot(False) #Display radius & cross
-    data = scanner.findData(False) #Draw lines and boxs around blobs
+    scanner.screenShot(True) #Display radius & cross
+    data = scanner.findData(True) #Draw lines and boxs around blobs
     sender.sendData(data, False) #Print angle and distance
 
     #LED(2).toggle() #Flashes Green LED

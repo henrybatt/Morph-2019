@@ -3,13 +3,13 @@
 
 #include <Arduino.h>
 
-#define ROBOT 0 //1 or 0, 1 = A
+#define ROBOT 1 //1 or 0, 1 = A
 #define ATTACK_GOAL_YELLOW false //true = Yellow, false = Blue
 #define GOAL_TRACK true
 
 // --- Movement Speed --- //
-#define ORBIT_FAST_SPEED 200// Vertical movement of orbit
-#define ORBIT_SLOW_SPEED 180 // Horizontal movement
+#define ORBIT_FAST_SPEED 180// Vertical movement of orbit
+#define ORBIT_SLOW_SPEED 160 // Horizontal movement
 
 #define ACCELERATION true
 #define MAX_ACCELERATION 0.1
@@ -24,10 +24,10 @@
 #define CAM_BAUD 115200
 #define CAM_PACKET_SIZE 7
 #define CAM_START_BYTE 255
-#define CAM_IMAGE_WIDTH 240
-#define CAM_IMAGE_HEIGHT 240
-#define CAM_CENTRE_X 120
-#define CAM_CENTRE_Y 120
+#define CAM_IMAGE_WIDTH 120
+#define CAM_IMAGE_HEIGHT 120
+#define CAM_CENTRE_X 60
+#define CAM_CENTRE_Y 60
 #define CAM_NO_DATA 250
 
 
@@ -126,7 +126,7 @@
 
 // Ball must be within front of the defender and close
 #define SWITCH_DEFEND_ANGLE 20
-#define SWITCH_DEFEND_STRENGTH 180
+#define SWITCH_DEFEND_STRENGTH 165
 
 // AND in front of attacker and semi far away
 #define SWITCH_ATTACK_ANGLE 90
@@ -135,26 +135,43 @@
 // OR far from attacker
 #define SWITCH_ATTACK_FAR_STRENGTH 110
 
+#if ROBOT // Fun ifs, why
+    #define DEFEND_DISTANCE 32
+    #define DEFEND_SURGE_DISTANCE 36
+
+    #define ATTACK_IDLE_DISTANCE_DFG 40 // Distance from defending goal to sit at when no ball
+    #define ATTACK_IDLE_DISTANCE_ATG 100 // Distance from attacking goal to sit at when no ball
+
+#else 
+    #define DEFEND_DISTANCE 46
+    #define DEFEND_SURGE_DISTANCE 53
+
+    #define ATTACK_IDLE_DISTANCE_DFG 53 // Distance from defending goal to sit at when no ball
+    #define ATTACK_IDLE_DISTANCE_ATG 80 // Distance from attacking goal to sit at when no ball
+#endif
+
+
+
 
 // --- Defender --- //
-#define DEFEND_DISTANCE 74//65//60
+// #define DEFEND_DISTANCE 74//65//60
 #define DEFEND_DISTANCE_CM 25 //Distance from goal in CM to sit at
 
-#define DEFEND_SURGE_STRENGTH 150 // Strength of ball to surge
+#define DEFEND_SURGE_STRENGTH 160 // Strength of ball to surge
 
 #define DEFEND_CAPTURE_ANGLE 20 // Angle range of ball to surge
 
-#define DEFEND_SURGE_DISTANCE 94//82//82  //70 // Distance from goal to surge till
+// #define DEFEND_SURGE_DISTANCE 94//82//82  //70 // Distance from goal to surge till
 #define DEFEND_SURGE_Y -30
 
 // --- Attacker --- //
 #define ATTACK_CENTERING false 
-#define ATTACK_IDLE_DISTANCE_DFG 82 // Distance from defending goal to sit at when no ball
-#define ATTACK_IDLE_DISTANCE_ATG 100 // Distance from attacking goal to sit at when no ball
+// #define ATTACK_IDLE_DISTANCE_DFG 82 // Distance from defending goal to sit at when no ball
+// #define ATTACK_IDLE_DISTANCE_ATG 100 // Distance from attacking goal to sit at when no ball
 
 #define ATTACK_SURGE_STRENGTH 180 // Strength of ball to surge 
 
-#define ATTACK_CAPTURE_ANGLE 8 // Angle range of ball to surge
+#define ATTACK_CAPTURE_ANGLE 10 // Angle range of ball to surge
 
 
 

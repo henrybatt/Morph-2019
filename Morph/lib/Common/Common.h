@@ -90,9 +90,9 @@ struct Vector3D {
     #define DEFEND_GOAL_TRACK_KD 0.2
     #define DEFEND_GOAL_TRACK_MAX_CORRECTION 255
 
-    #define X_MOVEMENT_KP 3 //5
+    #define X_MOVEMENT_KP 3.3 //5
     #define X_MOVEMENT_KI 0
-    #define X_MOVEMENT_KD 1.1 //0.3
+    #define X_MOVEMENT_KD 0.9 //0.3
     #define X_MOVEMENT_MAX 255
 
     #define Y_MOVEMENT_KP 4.75 //10
@@ -100,9 +100,9 @@ struct Vector3D {
     #define Y_MOVEMENT_KD 0.1 //0.3
     #define Y_MOVEMENT_MAX 255
 #else
-    #define ATTACK_GOAL_TRACK_KP 3.5
+    #define ATTACK_GOAL_TRACK_KP 2.1
     #define ATTACK_GOAL_TRACK_KI 0
-    #define ATTACK_GOAL_TRACK_KD 2 //0.7
+    #define ATTACK_GOAL_TRACK_KD 0.15 //0.7
     #define ATTACK_GOAL_TRACK_MAX_CORRECTION 255
 
     #define DEFEND_GOAL_TRACK_KP 2.1
@@ -110,9 +110,9 @@ struct Vector3D {
     #define DEFEND_GOAL_TRACK_KD 0.2
     #define DEFEND_GOAL_TRACK_MAX_CORRECTION 255
 
-    #define X_MOVEMENT_KP 3 //5
+    #define X_MOVEMENT_KP 3.3 //5
     #define X_MOVEMENT_KI 0
-    #define X_MOVEMENT_KD 1.1 //0.3
+    #define X_MOVEMENT_KD 0.9 //0.3
     #define X_MOVEMENT_MAX 255
 
     #define Y_MOVEMENT_KP 4.75 //10

@@ -7,7 +7,7 @@
 #define DEBUG_BALL_DATA 0
 #define DEBUG_LIGHT 0
 #define DEBUG_LINE_DATA 0
-#define DEBUG_CAMERA 1
+#define DEBUG_CAMERA 0
 #define DEBUG_CAMERA_RAW 0
 #define DEBUG_POSITION 0
 

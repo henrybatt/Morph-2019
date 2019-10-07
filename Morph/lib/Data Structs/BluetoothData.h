@@ -16,6 +16,7 @@ struct BluetoothData{
     Mode playMode; // playMode
     uint16_t heading; // IMU Heading
     Vector robotPosition; // Cartesian Robot Coords
+    int defendDistance;
 
     BluetoothData(){
         ballData = BallData();
@@ -23,9 +24,10 @@ struct BluetoothData{
         playMode = Mode::undecided;
         heading = 0;
         robotPosition = Vector(0,0);
+        defendDistance = 0;
     }
 
-    BluetoothData(BallData ballData, LineData lineData, Mode playMode, uint16_t heading, Vector robotPosition) : ballData(ballData), lineData(lineData), playMode(playMode), heading(heading), robotPosition(robotPosition) {}
+    BluetoothData(BallData ballData, LineData lineData, Mode playMode, uint16_t heading, Vector robotPosition, int defendDistance) : ballData(ballData), lineData(lineData), playMode(playMode), heading(heading), robotPosition(robotPosition), defendDistance(defendDistance){}
 };
 
 

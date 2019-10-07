@@ -109,15 +109,15 @@ void centre(goalData goal, int idleDist, bool isAttack){
 void calculateOrbit(){
     moveInfo.angle = doubleMod(ballInfo.angle + Tssps.calcAngleAddition(), 360); // Orbit Angle
 
-    int fastSpeed = Cam.attack.face ? ORBIT_FAST_SPEED : ORBIT_FAST_SPEED - 10;
-    int slowSpeed = Cam.attack.face ? ORBIT_SLOW_SPEED : ORBIT_SLOW_SPEED + 10;
+    int fastSpeed = Cam.attack.face ? ORBIT_FAST_SPEED : ORBIT_FAST_SPEED - 15;
+    int slowSpeed = Cam.attack.face ? ORBIT_SLOW_SPEED : ORBIT_SLOW_SPEED + 15;
 
-    //If ball infront of capture zone, surge forwards fast, else move at a modular speed
-    if (ballInfo.strength > ATTACK_SURGE_STRENGTH && angleIsInside(360 - ATTACK_CAPTURE_ANGLE, ATTACK_CAPTURE_ANGLE, ballInfo.angle)){
-        moveInfo.speed = fastSpeed;
-    } else {
+    // //If ball infront of capture zone, surge forwards fast, else move at a modular speed
+    // if (ballInfo.strength > ATTACK_SURGE_STRENGTH && angleIsInside(360 - ATTACK_CAPTURE_ANGLE, ATTACK_CAPTURE_ANGLE, ballInfo.angle)){
+    //     moveInfo.speed = fastSpeed;
+    // } else {
         moveInfo.speed = slowSpeed + (double)(fastSpeed - slowSpeed) * (1.0 - abs(Tssps.angleAddition) / (double)90.0);
-    }
+    // }
     
 }
 
@@ -182,16 +182,17 @@ void calculateDefenseMovement(){
             Cam.defend.face = false;
        }
     } else {
-        if (ballInfo.visible()){
+        // if (ballInfo.visible()){
             // No goal, become attacker
-            calculateOrbit();
+            // calculateOrbit();
+            moveInfo = MoveData(180, 200);
             Cam.defend.face = false; // Stop correcting to goal
 
-        } else {
+        // } else {
             // No goal or ball, stop in place
-            moveInfo.angle = -1;
-            moveInfo.speed = 0;
-        }
+            // moveInfo.angle = -1;
+            // moveInfo.speed = 0;
+        // }
     }
 
 
@@ -227,11 +228,12 @@ void calculateMovement(){
 }
 
 
-bool shouldSwitchMode(BluetoothData attacker, BluetoothData defender){
+bool shouldSwitchMode(BluetoothData attacker, BluetoothData defender, bool isAttack){
     return (angleIsInside(360 - SWITCH_DEFEND_ANGLE, SWITCH_DEFEND_ANGLE, defender.ballData.angle) && defender.ballData.strength > SWITCH_DEFEND_STRENGTH)
             && ((angleIsInside(360 - SWITCH_ATTACK_ANGLE, SWITCH_ATTACK_ANGLE, attacker.ballData.angle) && attacker.ballData.strength < SWITCH_ATTACK_STRENGTH) 
                 || attacker.ballData.strength <  SWITCH_ATTACK_FAR_STRENGTH)
             && (attacker.lineData.onField && defender.lineData.onField);
+            //&& (attacker.defendDistance <= (isAttack ? DEFEND_SURGE_DISTANCE_1 : DEFEND_SURGE_DISTANCE_0) && attacker.defendDistance >= 5);
 }
 
 
@@ -240,8 +242,11 @@ void updateMode(){
     Mode previousMode = playMode;
 
     ballInfo.isOut = LightArray.isOutsideLine(heading, ballInfo.angle);
-    bluetoothData = BluetoothData(ballInfo, lineInfo, playMode, heading, position.robotPosition);
+    bluetoothData = BluetoothData(ballInfo, lineInfo, playMode, heading, position.robotPosition, Cam.defend.distance);
     bluetooth.update(bluetoothData);
+
+    Serial.println(bluetooth.otherData.defendDistance);
+
 
     if (bluetooth.isConnected){
 
@@ -257,7 +262,8 @@ void updateMode(){
         } else if (ROBOT){
             // Default playMode decider - Defender
             if (shouldSwitchMode((playMode == Mode::attack ? bluetoothData : bluetooth.otherData), 
-                                (playMode == Mode::defend ? bluetoothData : bluetooth.otherData))){
+                                (playMode == Mode::defend ? bluetoothData : bluetooth.otherData), 
+                                playMode == Mode::attack)){
                 playMode = playMode == Mode::defend ? Mode::attack : Mode::defend;
             }
 
@@ -297,7 +303,7 @@ void setup(){
 
     defaultMode = ROBOT ? Mode::defend : Mode::attack;
      
-    // playMode = Mode::attack; // Manual playMode set
+    // playMode = Mode::defend; // Manual playMode set
     
     digitalWrite(LED_BUILTIN, LOW);
 }

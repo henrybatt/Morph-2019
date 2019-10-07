@@ -38,6 +38,8 @@ void Camera::read(){
 
 void Camera::calc() {
 
+    blue.visible = false;
+
     #if ATTACK_GOAL_YELLOW
         calculateGoal(&attack, yellow, false);
         calculateGoal(&defend, blue, true);

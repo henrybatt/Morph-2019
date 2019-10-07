@@ -48,6 +48,9 @@ void Bluetooth::send(){
     BTSerial.write(highByte(round(thisData.robotPosition.j)));
     BTSerial.write(lowByte(round(thisData.robotPosition.j)));
 
+    BTSerial.write((thisData.defendDistance));
+
+
 }
 
 void Bluetooth::recieve(){
@@ -68,7 +71,7 @@ void Bluetooth::recieve(){
             otherData.playMode = static_cast<Mode>(bluetoothBuffer[6]);
             otherData.heading = (bluetoothBuffer[7] << 8 | bluetoothBuffer[8]);
             otherData.robotPosition = Vector((bluetoothBuffer[9] << 8 | bluetoothBuffer[10]), (bluetoothBuffer[11] << 8 | bluetoothBuffer[12]));
-
+            otherData.defendDistance = bluetoothBuffer[13];
 
         }
     }

@@ -3,20 +3,23 @@
 
 #include <Arduino.h>
 
-#define ROBOT 1 //1 or 0, 1 = A
-#define ATTACK_GOAL_YELLOW false //true = Yellow, false = Blue
+#define ROBOT 0  //1 or 0, 1 = A
+#define ATTACK_GOAL_YELLOW true //true = Yellow, false = Blue
 #define GOAL_TRACK true
 
 // --- Movement Speed --- //
-#define ORBIT_FAST_SPEED 180// Vertical movement of orbit
-#define ORBIT_SLOW_SPEED 160 // Horizontal movement
+#define ORBIT_FAST_SPEED 255// Vertical movement of orbit
+#define ORBIT_SLOW_SPEED 230 // Horizontal movement
 
 #define ACCELERATION true
-#define MAX_ACCELERATION 0.1
+#define MAX_ACCELERATION 0.5
 
 #define LINE_OVER_SPEED 200 // Speed when all the way off line
 #define LINE_SPEED 125 //75 // Modular speed to cross over line (2 times min, half max)
 #define LINE_SPEED_CLOSE 75 // Speed when movement towards ball is close to line
+
+#define LINE_SIZE_MEDIUM 0.1
+#define LINE_SPEED_FAST 255
 
 
 // --- Camera --- //
@@ -96,7 +99,7 @@
 #define BT_BAUD 9600 //38400 //115200
 #define BTSerial Serial5
 #define BT_START_BYTE 255
-#define BT_PACKET_SIZE 14
+#define BT_PACKET_SIZE 15
 #define BT_DISCONNECT_TIME 1000000
 #define BT_UPDATE_TIME 100000
 
@@ -135,16 +138,21 @@
 // OR far from attacker
 #define SWITCH_ATTACK_FAR_STRENGTH 110
 
+#define DEFEND_SURGE_DISTANCE_1 36
+#define DEFEND_SURGE_DISTANCE_0 53
+
+
+
 #if ROBOT // Fun ifs, why
     #define DEFEND_DISTANCE 32
-    #define DEFEND_SURGE_DISTANCE 36
+    #define DEFEND_SURGE_DISTANCE DEFEND_SURGE_DISTANCE_1
 
     #define ATTACK_IDLE_DISTANCE_DFG 40 // Distance from defending goal to sit at when no ball
     #define ATTACK_IDLE_DISTANCE_ATG 100 // Distance from attacking goal to sit at when no ball
 
 #else 
     #define DEFEND_DISTANCE 46
-    #define DEFEND_SURGE_DISTANCE 53
+    #define DEFEND_SURGE_DISTANCE DEFEND_SURGE_DISTANCE_0
 
     #define ATTACK_IDLE_DISTANCE_DFG 53 // Distance from defending goal to sit at when no ball
     #define ATTACK_IDLE_DISTANCE_ATG 80 // Distance from attacking goal to sit at when no ball

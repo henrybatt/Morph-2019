@@ -55,6 +55,8 @@ void Bluetooth::send(){
 
 void Bluetooth::recieve(){
 
+    bool recievedData = false;
+
     while (BTSerial.available() >= BT_PACKET_SIZE){
 
         if (BTSerial.read() == BT_START_BYTE){
@@ -64,6 +66,7 @@ void Bluetooth::recieve(){
                 bluetoothBuffer[i] = BTSerial.read();
             }
 
+            recievedData = true;
             disconnectTimer.update();
 
             otherData.ballData = BallData((bluetoothBuffer[0] << 8) | bluetoothBuffer[1], (bluetoothBuffer[2] << 8) | bluetoothBuffer[3], bluetoothBuffer[4]);
@@ -76,7 +79,7 @@ void Bluetooth::recieve(){
         }
     }
 
-    isConnected = !disconnectTimer.timeHasPassedNoUpdate();
+    isConnected = recievedData || !disconnectTimer.timeHasPassedNoUpdate();
 
     if (isConnected){
         if (!previouslyConnected){

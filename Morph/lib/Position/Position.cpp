@@ -6,7 +6,7 @@ void  Position::calcRobotPosition(Camera Cam, float _heading){
     heading = heading;
     camVisible = false;
 
-    if (Cam.attack.visible || Cam.defend.visible){
+    if (Cam.attack.visible() || Cam.defend.visible()){
 
         camVisible = true;
 

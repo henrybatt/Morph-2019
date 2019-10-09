@@ -1,0 +1,148 @@
+#include <Camera.h>
+
+void Camera::init(){
+    cameraSerial.begin(CAM_BAUD);
+    newCamData = true;
+    read();
+}
+
+
+void Camera::read(){
+    if (cameraSerial.available() >= CAM_PACKET_SIZE) {
+        if(cameraSerial.read() == CAM_START_BYTE) {
+            newCamData = true;
+            for (int i = 0; i < CAM_PACKET_SIZE - 1; i++){
+                while (!cameraSerial.available());
+                camBuffer[i] = cameraSerial.read();
+            }
+
+            yellow = {.x = camBuffer[0], .y = camBuffer[1], .visible = camBuffer[4]};
+            blue = {.x = camBuffer[2], .y = camBuffer[3], .visible = camBuffer[5]};
+
+        }
+    }
+
+    #if DEBUG_CAMERA_RAW
+        Serial.print("Yellow: ");
+        Serial.print(yellow.x);
+        Serial.print(" , ");
+        Serial.print(yellow.y);
+        Serial.print(" Blue: ");
+        Serial.print(blue.x);
+        Serial.print(" , ");
+        Serial.println(blue.y);
+    #endif
+    
+}
+
+
+void Camera::calc() {
+
+    blue.visible = false;
+
+    #if ATTACK_GOAL_YELLOW
+        calculateGoal(&attack, yellow, false);
+        calculateGoal(&defend, blue, true);
+    #else
+        calculateGoal(&attack, blue, false);
+        calculateGoal(&defend, yellow, true);
+    #endif
+
+    #if DEBUG_CAMERA
+        Serial.print("Attack Angle: ");
+        Serial.print(attack.angle);
+        Serial.print(", Attack distance: ");
+        Serial.print(attack.distance);
+        Serial.print(", Attack visible: ");
+        Serial.print(attack.visible);
+        Serial.print(", Defend Angle: ");
+        Serial.print(defend.angle);
+        Serial.print(", Defend distance: ");
+        Serial.print(defend.distance);
+        Serial.print(", Defend visible: ");
+        Serial.println(defend.visible);
+    #endif
+}
+
+
+void Camera::calculateGoal(goalData *goal, camImage image, bool defend){
+    *goal = {.angle = defend ? mod(calculateAngle(image) + 180, 360) : calculateAngle(image), 
+    .distance = calculateDistance(image), .visible = image.visible};
+}
+
+
+int Camera::calculateAngle(camImage image){
+    int x = image.x - CAM_CENTRE_X;
+    int y = image.y - CAM_CENTRE_Y;
+
+    return image.visible ? mod(450 - round(radiansToDegrees(atan2(y,x))), 360) : -1;
+}
+
+
+int Camera::calculateDistance(camImage image){
+    int x = image.x - CAM_CENTRE_X;
+    int y = image.y - CAM_CENTRE_Y;
+
+    return image.visible ? sqrt(x * x + y * y) : 0;
+}
+
+int Camera::calculateCentimeter(int distance){
+    return 0.00000353067 * pow(MATH_E, 0.0288427 * (distance + 500)) - 25.0921;
+}
+
+
+bool Camera::newData(){
+    bool data = newCamData;
+    newCamData = false;
+
+    return data;
+}
+
+
+void Camera::update(){
+    read();
+    if (newData()){
+        calc();
+    }
+}
+
+void Camera::goalTrack(){
+    attack.face = attack.visible ? true : false; //Set as additional value to allow manual modification
+    defend.face = defend.visible ? true : false;
+}
+
+
+double Camera::closestDistance(){
+    if(attack.visible || defend.visible){
+        if(!attack.visible){
+            return defend.distance;
+        } else if (!defend.visible){
+            return attack.distance;
+        } else {
+            return min(attack.distance, defend.distance);
+        }
+    }
+    return 0;
+}
+
+
+double Camera::closestCentimeter(){
+    if(attack.visible || defend.visible){
+        if(!attack.visible){
+            return calculateCentimeter(defend.distance);
+        } else if (!defend.visible){
+            return calculateCentimeter(attack.distance);
+        } else {
+            return min(calculateCentimeter(attack.distance), calculateCentimeter(defend.distance));
+        }
+    }
+    return 0;
+}
+
+bool Camera::attackClosest(){
+    return closestDistance() == attack.distance;
+}
+
+bool Camera::goalVisible(){
+    return (attack.visible || defend.visible); 
+}

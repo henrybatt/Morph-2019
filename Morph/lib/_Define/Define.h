@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 
-#define ROBOT 0  //1 or 0, 1 = A
+#define ROBOT 1  //1 or 0, 1 = A
 #define ATTACK_GOAL_YELLOW true //true = Yellow, false = Blue
 #define GOAL_TRACK true
 

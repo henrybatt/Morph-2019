@@ -7,15 +7,26 @@
 #include <Debug.h>
 #include <Common.h>
 
-#include <GoalData.h>
+struct camImage{
+    int x, y;
+    bool visible;
+};
 
+struct goalData{
+    int angle, distance;
+    bool visible, face;
+};
 
 class Camera{
     public:
 
-        /* -- Structures of goal data -- */
-        GoalData attack;
-        GoalData defend;
+        /* -- Structures of all camera data -- */
+        camImage yellow;
+        camImage blue;
+
+        goalData attack;
+        goalData defend;
+
 
         /* -- Setup Camera Serial and read-- */
         void init();
@@ -38,20 +49,39 @@ class Camera{
         /* -- If a goal is visible -- */
         bool goalVisible();
 
-        /* -- Determines if new data has come over cameraSerial -- */
-        bool newData();
-
     private:
 
         /* -- Read from camera serial to get x & y values of goals -- */
         void read();
 
+        /* -- Calculate angle's + distances towards goals -- */
+        void calc();
+
+        /* -- Determines if new data has come over cameraSerial -- */
+        bool newData();
+
+        /* -- Populate goal data with values -- */
+        void calculateGoal(goalData *goal, camImage image, bool defend);
+
+        /* -- Calculate angle towards image -- */
+        int calculateAngle(camImage image);
+
+        /* -- Calculate distance towards image -- */
+        int calculateDistance(camImage image);
+
         /* -- Calculate distance towards goal in centimeters -- */
         int calculateCentimeter(int distance);
+
+
+
 
         bool newCamData;
 
         int currentin;
+        int camBuffer[CAM_PACKET_SIZE];
+
+
+
 
 };
 #endif

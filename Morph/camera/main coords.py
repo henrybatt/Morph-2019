@@ -41,20 +41,16 @@ class Scan():
         sensor.set_pixformat(sensor.RGB565)
         sensor.set_framesize(sensor.QQVGA)
         sensor.set_windowing(self.window)
-        sensor.skip_frames(time=1000)
+        sensor.skip_frames(time = 100)
 
         # - Balance - #
-        sensor.set_auto_whitebal(False, rgb_gain_db=self.whitebal)
         sensor.set_brightness(0)
         sensor.set_contrast(3)
-        sensor.set_saturation(3)
-        curr_exposure = sensor.get_exposure_us()
-        sensor.set_auto_exposure(False, exposure_us=int(curr_exposure*0.7))
-        curr_gain = sensor.get_gain_db()
-        sensor.set_auto_gain(False, gain_db=curr_gain)
-        sensor.set_auto_gain(False, gain_db=15)
-        sensor.skip_frames(time=500)
+        sensor.set_saturation(2)
 
+        sensor.set_auto_exposure(False, exposure_us=10000)#sensor.get_exposure_us())
+        sensor.set_auto_gain(False, gain_db=15)#sensor.get_gain_db())
+        sensor.skip_frames(time=500)
 
     def whiteBal(self):
         sensor.set_auto_whitebal(True)
@@ -152,7 +148,7 @@ LED(1).off()
 
 
 while True:
-    #clock.tick()
+    clock.tick()
 
 
     #scanner.whiteBal() #Print white balance value
@@ -161,7 +157,7 @@ while True:
     sender.sendData(data, False) #Print angle and distance
 
     #LED(2).toggle() #Flashes Green LED
-    #print(clock.fps())
+    print(clock.fps())
 
 
 

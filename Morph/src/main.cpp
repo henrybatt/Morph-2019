@@ -52,7 +52,6 @@ LightSensorArray LightArray;
 Camera Cam;
 Position position;
 Bluetooth bluetooth;
-Vector currentAcceleration;
 
 IMU Compass;
 
@@ -73,7 +72,7 @@ Mode defaultMode;
 // IMU Compass;
 
 /* --- Centre to goal, idleDist away --- */
-void centre(goalData goal, int idleDist);
+void centre(GoalData goal, int idleDist);
 /* --- Determine angle and speed to orbit around ball --- */
 void calculateOrbit();
 /* --- Calculate attacking movement --- */
@@ -96,7 +95,7 @@ void setup();
 void loop();
 
 
-void centre(goalData goal, int idleDist, bool isAttack){
+void centre(GoalData goal, int idleDist, bool isAttack){
     double goalAngle = doubleMod(goal.angle + heading, 360);
     double xmoveInfo = -xPID.update(goal.distance * sin(degreesToRadians(goalAngle)), 0);
     double ymoveInfo = -yPID.update(goal.distance * cos(degreesToRadians(goalAngle)), idleDist);
@@ -156,7 +155,7 @@ void calculateAttackMovement(){
 
 
 void calculateDefenseMovement(){
-    if (Cam.defend.visible){
+    if (Cam.defend.visible()){
         if (ballInfo.visible()){
             if (angleIsInside(360 - DEFEND_CAPTURE_ANGLE, DEFEND_CAPTURE_ANGLE, ballInfo.angle) && ballInfo.strength > DEFEND_SURGE_STRENGTH && Cam.defend.distance < DEFEND_SURGE_DISTANCE){
                 // Ball infront of robot, surge forwards

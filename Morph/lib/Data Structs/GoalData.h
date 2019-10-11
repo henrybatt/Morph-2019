@@ -7,7 +7,7 @@
 class GoalData{
 
     public: 
-        uint16_t angle 
+        uint16_t angle;
         uint8_t distance;
         bool face;
 

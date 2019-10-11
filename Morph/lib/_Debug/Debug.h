@@ -3,7 +3,7 @@
 
 #define DEBUG_ORBIT 0
 #define DEBUG_COMPASS 0
-#define DEBUG_TSSP 1
+#define DEBUG_TSSP 0
 #define DEBUG_BALL_DATA 0
 #define DEBUG_LIGHT 0
 #define DEBUG_LINE_DATA 0

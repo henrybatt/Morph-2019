@@ -131,7 +131,6 @@ void calculateAttackMovement(){
 
     } else if (ballInfo.visible()){
         calculateOrbit(); // Calculate Movement towards ball.
-        Serial.println("Orbiting lol");
 
     } else { // No ball visible, if goal visible sit in-line
         
@@ -149,7 +148,6 @@ void calculateAttackMovement(){
             // No ball or goal visible, stop
             moveInfo.angle = -1;
             moveInfo.speed = 0;
-            Serial.println("REeeeee no ball");
 
         }
     } 

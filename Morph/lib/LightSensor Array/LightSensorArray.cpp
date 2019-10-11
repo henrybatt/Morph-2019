@@ -208,6 +208,7 @@ void LightSensorArray::calculateOutAvoidance(MoveData *calcMove, float heading){
     if (!lineInfo.onField){
         if (lineInfo.size > LINE_SIZE_MEDIUM){
             *calcMove = MoveData(doubleMod(lineInfo.angle + 180 - heading, 360), LINE_SPEED_FAST);
+            Serial.println("Line Avoiding");
         }
     }
 

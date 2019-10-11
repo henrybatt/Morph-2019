@@ -111,12 +111,12 @@ void calculateOrbit(){
     int fastSpeed = Cam.attack.face ? ORBIT_FAST_SPEED : ORBIT_FAST_SPEED - 15;
     int slowSpeed = Cam.attack.face ? ORBIT_SLOW_SPEED : ORBIT_SLOW_SPEED + 15;
 
-    // //If ball infront of capture zone, surge forwards fast, else move at a modular speed
-    // if (ballInfo.strength > ATTACK_SURGE_STRENGTH && angleIsInside(360 - ATTACK_CAPTURE_ANGLE, ATTACK_CAPTURE_ANGLE, ballInfo.angle)){
-    //     moveInfo.speed = fastSpeed;
-    // } else {
+    //If ball infront of capture zone, surge forwards fast, else move at a modular speed
+    if (ballInfo.strength > ATTACK_SURGE_STRENGTH && angleIsInside(360 - ATTACK_CAPTURE_ANGLE, ATTACK_CAPTURE_ANGLE, ballInfo.angle)){
+        moveInfo.speed = fastSpeed;
+    } else {
         moveInfo.speed = slowSpeed + (double)(fastSpeed - slowSpeed) * (1.0 - abs(Tssps.angleAddition) / (double)90.0);
-    // }
+    }
     
 }
 
@@ -131,6 +131,7 @@ void calculateAttackMovement(){
 
     } else if (ballInfo.visible()){
         calculateOrbit(); // Calculate Movement towards ball.
+        Serial.println("Orbiting lol");
 
     } else { // No ball visible, if goal visible sit in-line
         
@@ -148,6 +149,7 @@ void calculateAttackMovement(){
             // No ball or goal visible, stop
             moveInfo.angle = -1;
             moveInfo.speed = 0;
+            Serial.println("REeeeee no ball");
 
         }
     } 
@@ -300,7 +302,7 @@ void setup(){
 
     Compass.init();
 
-    defaultMode = ROBOT ? Mode::defend : Mode::attack;
+    defaultMode = !ROBOT ? Mode::defend : Mode::attack;
      
     // playMode = Mode::defend; // Manual playMode set
     

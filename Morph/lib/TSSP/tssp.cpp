@@ -105,7 +105,7 @@ void TSSP::calculateAngleStrength(int n){
 double TSSP::calcAngleAddition(){
     double value = ballInfo.angle > 180 ? ballInfo.angle - 360 : ballInfo.angle;
     double ballAngleDifference = findSign(value) * fmin(90, 0.4 * pow(MATH_E, 0.15 * smallestAngleBetween(ballInfo.angle, 0)));
-    double strengthFactor = constrain(ballInfo.strength / BALL_CLOSE_STRENGTH, 0, 1);
+    double strengthFactor = constrain(((double)ballInfo.strength - (double)BALL_FAR_STRENGTH) / ((double)BALL_CLOSE_STRENGTH - BALL_FAR_STRENGTH), 0, 1);
     double distanceMultiplier = constrain((0.02 * strengthFactor * pow(MATH_E, 4.5 * strengthFactor)), 0.1, 1);
     angleAddition = ballAngleDifference * distanceMultiplier;
     return angleAddition;

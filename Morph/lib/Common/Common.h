@@ -67,7 +67,7 @@ struct Vector3D {
 #define IDLE_HEADING_KD 0.05
 #define IDLE_HEADING_MAX_CORRECTION 255
 
-#define HEADING_KP 2
+#define HEADING_KP 2.2
 #define HEADING_KI 0
 #define HEADING_KD 0.21
 #define HEADING_MAX_CORRECTION 255

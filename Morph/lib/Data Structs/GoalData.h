@@ -7,7 +7,8 @@
 class GoalData{
 
     public: 
-        uint16_t angle, distance;
+        uint16_t angle 
+        uint8_t distance;
         bool face;
 
         GoalData(){
@@ -15,7 +16,7 @@ class GoalData{
             distance = 0;
         }
 
-        GoalData(uint16_t angle, uint16_t distance) : angle(angle), distance(distance) {}
+        GoalData(uint16_t angle, uint8_t distance) : angle(angle), distance(distance) {}
 
         bool visible(){
             return angle != 65535;

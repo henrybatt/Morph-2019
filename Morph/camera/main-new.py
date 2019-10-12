@@ -1,8 +1,8 @@
 
 
 
-ATTACK_YELLOW = False
-ROBOT = 1   # 1=A, 0=B
+ATTACK_YELLOW = True
+ROBOT = 0   # 1=A, 0=B
 
 DEBUG_WHITEBAL = False
 DEBUGGING = False
@@ -30,18 +30,18 @@ class Find():
         # - Camera Specific Values - #
         if robot:
             self.thresholds = [
-            (67, 99, -22, 54, 28, 64),   #Yellow Goal
-            (11, 50, -60, -11, -7, 34)]   #Blue Goal
-            self.whitebal = (-6.02073, -5.886325, -0.4176831)
-            self.window = (10, 0, 120, 120)
-            self.MAX_RAD = 70
+            (50, 99, -12, 33, 10, 64),   #Yellow Goal
+           (42, 70, -9, 26, -69, -29)]   #Blue Goal
+            self.whitebal = (-6.02073, -6.02073, -0.7813516)
+            self.window = (15, 0, 120, 120)
+            self.MAX_RAD = 80
             self.CENTREX = 60
             self.CENTREY = 60
         else:
             self.thresholds = [
-            (12, 51, 14, 70, -1, 66),   #Yellow Goal
-            (0, 0, 0, 0, 0, 0)]   #Blue Goal
-            self.whitebal = (-6.02073, -3.974893, 0.9007286)
+            (68, 99, -16, 11, 14, 99),   #Yellow Goal
+            (38, 72, -24, 13, -64, -38)]   #Blue Goal
+            self.whitebal = (-6.02073, -6.02073, -0.5613652)
             self.window = (20, 0, 120, 120)
             self.MAX_RAD = 80
             self.CENTREX = 60
@@ -59,12 +59,15 @@ class Find():
         if DEBUG_WHITEBAL:
             sensor.set_auto_whitebal(True)
         else:
-            sensor.set_brightness(0)
-            sensor.set_contrast(3)
+            sensor.set_brightness(1)
+            sensor.set_contrast(0)
             sensor.set_saturation(2)
 
-            sensor.set_auto_exposure(False, exposure_us=5000)#10000)#sensor.get_exposure_us())
-            sensor.set_auto_gain(False, gain_db=15)#sensor.get_gain_db())
+
+            print(sensor.get_exposure_us())
+            curr_exposure = sensor.get_exposure_us()
+            sensor.set_auto_exposure(False, exposure_us=int(curr_exposure*0.7))
+            sensor.set_auto_gain(False, gain_db=sensor.get_gain_db())
             sensor.skip_frames(time=500)
 
 

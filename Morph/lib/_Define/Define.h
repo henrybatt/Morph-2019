@@ -5,11 +5,11 @@
 
 #define ROBOT 0  //1 or 0, 1 = A
 #define ATTACK_GOAL_YELLOW true //true = Yellow, false = Blue
-#define GOAL_TRACK false
+#define GOAL_TRACK true
 
 // --- Movement Speed --- //
-#define ORBIT_FAST_SPEED 100// Vertical movement of orbit
-#define ORBIT_SLOW_SPEED 100 // Horizontal movement
+#define ORBIT_FAST_SPEED 145 // Vertical movement of orbit
+#define ORBIT_SLOW_SPEED 130 // Horizontal movement
 
 #define ACCELERATION false
 #define MAX_ACCELERATION 0.5
@@ -59,8 +59,9 @@
 #define TSSP_NUM_MULTIPLIER 20 //360 / LS_NUM
 #define TSSP_NO_BALL -1
 #define TSSP_READ_NUM 255
-#define BALL_CLOSE_STRENGTH 155
+#define BALL_CLOSE_STRENGTH 145
 #define BALL_FAR_STRENGTH 50
+#define ANGLE_DIFF_MULTIPLIER 0.15
 #define TSSP_PERIOD 4
 
 
@@ -71,8 +72,8 @@
 
 
 // --- IMU Sensor --- //
-#define IMU_CALIBRATION_COUNT 20
-#define IMU_CALIBRATION_TIME 50
+#define IMU_CALIBRATION_COUNT 50
+#define IMU_CALIBRATION_TIME 40
 
 #define MPU9250_ADDRESS 0x68
 #define MAG_ADDRESS 0x0C
@@ -139,21 +140,21 @@
 // OR far from attacker
 #define SWITCH_ATTACK_FAR_STRENGTH 110
 
-#define DEFEND_SURGE_DISTANCE_1 36
+#define DEFEND_SURGE_DISTANCE_1 48
 #define DEFEND_SURGE_DISTANCE_0 53
 
 
 
 #if ROBOT // Fun ifs, why
-    #define DEFEND_DISTANCE 32
-    #define DEFEND_SURGE_DISTANCE DEFEND_SURGE_DISTANCE_1
+    #define DEFEND_DISTANCE 24
+    #define DEFEND_SURGE_DISTANCE 26
 
     #define ATTACK_IDLE_DISTANCE_DFG 40 // Distance from defending goal to sit at when no ball
     #define ATTACK_IDLE_DISTANCE_ATG 100 // Distance from attacking goal to sit at when no ball
 
 #else 
     #define DEFEND_DISTANCE 46
-    #define DEFEND_SURGE_DISTANCE DEFEND_SURGE_DISTANCE_0
+    #define DEFEND_SURGE_DISTANCE 53
 
     #define ATTACK_IDLE_DISTANCE_DFG 53 // Distance from defending goal to sit at when no ball
     #define ATTACK_IDLE_DISTANCE_ATG 80 // Distance from attacking goal to sit at when no ball
@@ -168,7 +169,7 @@
 
 #define DEFEND_SURGE_STRENGTH 160 // Strength of ball to surge
 
-#define DEFEND_CAPTURE_ANGLE 20 // Angle range of ball to surge
+#define DEFEND_CAPTURE_ANGLE 15 // Angle range of ball to surge
 
 // #define DEFEND_SURGE_DISTANCE 94//82//82  //70 // Distance from goal to surge till
 #define DEFEND_SURGE_Y -30

@@ -20,6 +20,21 @@ void Camera::read(){
             
             attack = GoalData(camBuffer[0] << 8 | camBuffer[1], camBuffer[2]);
             defend = GoalData(mod((camBuffer[3] << 8 | camBuffer[4]) + 180, 360), camBuffer[5]);
+
+            #if DEBUG_CAMERA_RAW
+                Serial.print(camBuffer[0]);
+                Serial.print(", ");
+                Serial.print(camBuffer[1]);
+                Serial.print(", ");
+                Serial.print(camBuffer[2]);
+                Serial.print(", ");
+                Serial.print(camBuffer[3]);
+                Serial.print(", ");
+                Serial.print(camBuffer[4]);
+                Serial.print(", ");
+                Serial.println(camBuffer[5]);
+            #endif
+    
         }
     }
 }

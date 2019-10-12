@@ -108,8 +108,8 @@ void centre(GoalData goal, int idleDist, bool isAttack){
 void calculateOrbit(){
     moveInfo.angle = doubleMod(ballInfo.angle + Tssps.calcAngleAddition(), 360); // Orbit Angle
 
-    int fastSpeed = Cam.attack.face ? ORBIT_FAST_SPEED : ORBIT_FAST_SPEED - 15;
-    int slowSpeed = Cam.attack.face ? ORBIT_SLOW_SPEED : ORBIT_SLOW_SPEED + 15;
+    int fastSpeed = Cam.attack.face ? ORBIT_FAST_SPEED : ORBIT_FAST_SPEED - 10; // Target 135
+    int slowSpeed = Cam.attack.face ? ORBIT_SLOW_SPEED : ORBIT_SLOW_SPEED + 10; // Target 140
 
     //If ball infront of capture zone, surge forwards fast, else move at a modular speed
     if (ballInfo.strength > ATTACK_SURGE_STRENGTH && angleIsInside(360 - ATTACK_CAPTURE_ANGLE, ATTACK_CAPTURE_ANGLE, ballInfo.angle)){
@@ -159,7 +159,8 @@ void calculateDefenseMovement(){
         if (ballInfo.visible()){
             if (angleIsInside(360 - DEFEND_CAPTURE_ANGLE, DEFEND_CAPTURE_ANGLE, ballInfo.angle) && ballInfo.strength > DEFEND_SURGE_STRENGTH && Cam.defend.distance < DEFEND_SURGE_DISTANCE){
                 // Ball infront of robot, surge forwards
-                calculateOrbit();
+                // calculateOrbit();
+                moveInfo = MoveData(0, 120);
                 Cam.defend.face = false;
                 
             } else if (!angleIsInside(270, 90, ballInfo.angle)){
@@ -168,8 +169,10 @@ void calculateDefenseMovement(){
 
             } else {
                 // Defend Goal
-                double xmoveInfo = -xPID.update(mod(ballInfo.angle + 180, 360) - 180, 0);
+                double ballAngle = ballInfo.angle > 180 ? ballInfo.angle - 360 : ballInfo.angle;
+                double xmoveInfo = -xPID.update(ballAngle, 0);
                 double ymoveInfo = yPID.update(Cam.defend.distance, DEFEND_DISTANCE);
+                // double ymoveInfo = Cam.defend.visible() ? yPID.update(Cam.defend.distance, DEFEND_DISTANCE) : -30;
                 moveInfo.angle = mod(radiansToDegrees(atan2(xmoveInfo, ymoveInfo)), 360);
                 moveInfo.speed = sqrt(pow(xmoveInfo, 2) + pow(ymoveInfo, 2));
             }
@@ -179,19 +182,21 @@ void calculateDefenseMovement(){
             centre(Cam.defend, DEFEND_DISTANCE, false);
             // position.moveToCoord(&moveInfo, Vector(0, position.defendGoal.j + DEFEND_DISTANCE_CM));
             Cam.defend.face = false;
+
        }
     } else {
-        // if (ballInfo.visible()){
+        if (ballInfo.visible()){
             // No goal, become attacker
             // calculateOrbit();
-            moveInfo = MoveData(180, 200);
+            moveInfo = MoveData(180,70);
             Cam.defend.face = false; // Stop correcting to goal
 
-        // } else {
+        } else {
             // No goal or ball, stop in place
-            // moveInfo.angle = -1;
-            // moveInfo.speed = 0;
-        // }
+            moveInfo.angle = -1;
+            moveInfo.speed = 0;
+            Cam.defend.face = false;
+        }
     }
 
 
@@ -300,9 +305,9 @@ void setup(){
 
     Compass.init();
 
-    defaultMode = !ROBOT ? Mode::defend : Mode::attack;
+    defaultMode = ROBOT ? Mode::defend : Mode::attack;
      
-    // playMode = Mode::defend; // Manual playMode set
+    playMode = defaultMode; // Manual playMode set
     
     digitalWrite(LED_BUILTIN, LOW);
 }
@@ -325,9 +330,9 @@ void loop(){
         // position.calcRobotPosition(Cam, heading);
     #endif
 
-    if (BTSendTimer.timeHasPassed()){
-        updateMode();
-    }
+    // if (BTSendTimer.timeHasPassed()){
+    //     updateMode();
+    // }
 
     calculateMovement(); //Calculate movement values 
 

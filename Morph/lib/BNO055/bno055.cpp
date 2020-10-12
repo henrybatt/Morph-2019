@@ -3497,6 +3497,7 @@ struct bno055_gyro_float_t *gyro_xyz_data)
  *
  *
  */
+#include <Arduino.h>
 BNO055_RETURN_FUNCTION_TYPE bno055_convert_float_euler_h_deg(
 float *euler_h_f)
 {

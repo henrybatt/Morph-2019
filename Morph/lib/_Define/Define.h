@@ -5,7 +5,7 @@
 
 #define ROBOT 0  //1 or 0, 1 = A
 #define ATTACK_GOAL_YELLOW true //true = Yellow, false = Blue
-#define GOAL_TRACK true
+#define GOAL_TRACK false
 
 // --- Movement Speed --- //
 #define ORBIT_FAST_SPEED 145 // Vertical movement of orbit
@@ -59,8 +59,8 @@
 #define TSSP_NUM_MULTIPLIER 20 //360 / LS_NUM
 #define TSSP_NO_BALL -1
 #define TSSP_READ_NUM 255
-#define BALL_CLOSE_STRENGTH 145
-#define BALL_FAR_STRENGTH 50
+#define BALL_CLOSE_STRENGTH 160
+#define BALL_FAR_STRENGTH 30
 #define ANGLE_DIFF_MULTIPLIER 0.15
 #define TSSP_PERIOD 4
 

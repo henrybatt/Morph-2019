@@ -236,6 +236,7 @@ bool LightSensorArray::isOutsideLine(float heading, double angle){
 
     if (mod(lineInfo.angle, 90) > LINE_CORNER_ANGLE_THRESHOLD && mod(lineInfo.angle, 90) < 90 - LINE_CORNER_ANGLE_THRESHOLD){
         // If mod of angle greater than value line curves, must be corner
+        
         // If orbit angle and line angle between 90 or 180 respectively must be trying to move out 
         return (angleIsInside(doubleMod(lineInfo.angle - 135 - LINE_BUFFER_CORNER, 360), doubleMod(lineInfo.angle + 135 + LINE_BUFFER_CORNER, 360), mod(angle + heading, 360)));
     } else {

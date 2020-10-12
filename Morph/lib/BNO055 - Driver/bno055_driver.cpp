@@ -1,6 +1,7 @@
 #include "bno055.h"
 #include "Arduino.h"
-#include "i2c_t3.h"
+// #include "i2c_t3.h"
+#include <Wire.h>
 
 s8 bno055_read(u8 dev_addr, u8 reg_addr, u8 *reg_data, u8 cnt){
     Wire.beginTransmission(dev_addr);	//Start of transmission

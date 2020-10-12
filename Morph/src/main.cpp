@@ -10,7 +10,9 @@
 #include <LightSensorArray.h>
 #include <Camera.h>
 #include <Bluetooth.h>
-// #include<i2c_t3.h>
+// #include <i2c_t3.h>
+
+#include <Wire.h>
 
 #include <IMU.h>
 
@@ -23,7 +25,7 @@
 #include <BluetoothData.h>
 
 #include <Position.h>
-
+// #include <LightArrayVector.h>
 
 // PID's for correction and movement around field
 PID headingPID(HEADING_KP, HEADING_KI, HEADING_KD, HEADING_MAX_CORRECTION);
@@ -42,18 +44,19 @@ Timer undecidedLEDTimer(200000);
 Timer BTSendTimer = Timer(BT_UPDATE_TIME);
 
 bool ledOn = false; // State of LED
-float heading; // IMU heading
+float heading = 0; // IMU heading
 
 // Pointer Setup
 // struct bno055_t bno055 = {0};
 MotorController Motor;
 TSSP Tssps;
 LightSensorArray LightArray;
+// LightArrayVector LightVector;
 Camera Cam;
 Position position;
 Bluetooth bluetooth;
 
-IMU Compass;
+// IMU Compass;
 
 // Structs of robot data
 
@@ -69,7 +72,7 @@ BluetoothData bluetoothData;
 Mode playMode = Mode::undecided;
 Mode defaultMode;
 
-// IMU Compass;
+IMU Compass;
 
 /* --- Centre to goal, idleDist away --- */
 void centre(GoalData goal, int idleDist);
@@ -111,13 +114,35 @@ void calculateOrbit(){
     int fastSpeed = Cam.attack.face ? ORBIT_FAST_SPEED : ORBIT_FAST_SPEED - 10; // Target 135
     int slowSpeed = Cam.attack.face ? ORBIT_SLOW_SPEED : ORBIT_SLOW_SPEED + 10; // Target 140
 
-    //If ball infront of capture zone, surge forwards fast, else move at a modular speed
+    If ball infront of capture zone, surge forwards fast, else move at a modular speed
     if (ballInfo.strength > ATTACK_SURGE_STRENGTH && angleIsInside(360 - ATTACK_CAPTURE_ANGLE, ATTACK_CAPTURE_ANGLE, ballInfo.angle)){
         moveInfo.speed = fastSpeed;
     } else {
         moveInfo.speed = slowSpeed + (double)(fastSpeed - slowSpeed) * (1.0 - abs(Tssps.angleAddition) / (double)90.0);
     }
     
+}
+
+
+void calcOrbit(){
+    double strengthMultiplier = constrain(pow(287.417, ((((double)ballInfo.strength - (double)BALL_FAR_STRENGTH) / ((double)BALL_CLOSE_STRENGTH - (double)BALL_FAR_STRENGTH)) - 0.89417) - 0.00635), 0, 1);  
+    double angleMultiplier = min(90, pow(1.1618, (smallestAngleBetween(ballInfo.angle, 0) - 6.1))) * sign(ballInfo.angle > 180 ? ballInfo.angle - 360 : ballInfo.angle);
+    double angleModifier = angleMultiplier * strengthMultiplier;
+
+    moveInfo.angle = doubleMod(ballInfo.angle + angleModifier, 360);
+    moveInfo.speed = ORBIT_SLOW_SPEED + (double)(ORBIT_FAST_SPEED - ORBIT_SLOW_SPEED) * (1.0 - abs(angleModifier) / (double)90.0);
+}
+
+
+void orbit(){
+
+    double strengthModifier = (((double)ballInfo.strength - (double)BALL_FAR_STRENGTH) / ((double)BALL_CLOSE_STRENGTH - (double)BALL_FAR_STRENGTH));
+    double value = ballInfo.angle > 180 ? ballInfo.angle - 360 : ballInfo.angle;
+    double angleAddition = angleIsInside(325, 35, ballInfo.angle) ? (value * 1.1 * strengthModifier) : findSign(value) * (90 * strengthModifier);
+
+
+    moveInfo.angle = doubleMod(ballInfo.angle + angleAddition, 360);
+    moveInfo.speed = ORBIT_SLOW_SPEED + (double)(ORBIT_FAST_SPEED - ORBIT_SLOW_SPEED) * (1.0 - abs(angleAddition) / (double)90.0);
 }
 
 
@@ -228,7 +253,6 @@ void calculateMovement(){
     LightArray.calculateOutAvoidance(&moveInfo, heading); // Updates movement with state of line.
 
     calculateCorrection(); // Update correction value based on goal correction state
-
 }
 
 
@@ -307,19 +331,21 @@ void setup(){
 
     defaultMode = ROBOT ? Mode::defend : Mode::attack;
      
-    playMode = defaultMode; // Manual playMode set
+    playMode = Mode::attack; // Manual playMode set
     
     digitalWrite(LED_BUILTIN, LOW);
 }
 
 
 void loop(){
+
+
     // Read from libraries to find data
 
     // bno055_convert_float_euler_h_deg(&heading);
-
     Compass.read();
     heading = Compass.heading;
+
 
     Tssps.read();
     LightArray.update(heading);
@@ -330,42 +356,42 @@ void loop(){
         // position.calcRobotPosition(Cam, heading);
     #endif
 
-    // if (BTSendTimer.timeHasPassed()){
-    //     updateMode();
-    // }
+
+    if (BTSendTimer.timeHasPassed()){ // Update bluetooth after timer passed
+        updateMode();
+    }
 
     calculateMovement(); //Calculate movement values 
 
     Motor.Move(moveInfo); // Move towards target
 
+
     playModeLED();
 
 } 
 
-/*
-void bnoInit(){
-    delay(100);
-    Wire.begin();
-    // setup BNO055 driver
-    bno055.bus_read = bno055_read;
-    bno055.bus_write = bno055_write;
-    bno055.delay_msec = bno055_delay_ms;
-    bno055.dev_addr = BNO055_I2C_ADDR2;
 
-    s8 result = bno055_init(&bno055);
-    result += bno055_set_power_mode(BNO055_POWER_MODE_NORMAL);
-    // see page 22 of the datasheet, Section 3.3.1
-    // we don't use NDOF or NDOF_FMC_OFF because it has a habit of snapping to magnetic north which is undesierable
-    // instead we use IMUPLUS (acc + gyro fusion) if there is magnetic interference, otherwise M4G (basically relative mag)
-    result += bno055_set_operation_mode(BNO055_OPERATION_MODE_IMUPLUS);
-    if (result == 0){
-        Serial.println("BNO055 initialised");
-    } else {
-        Serial.printf("BNO055 init error: %d\n", result);
-    }
-    
-}
-*/
+// void bnoInit(){
+//     delay(100);
+//     Wire.begin();
+//     // setup BNO055 driver
+//     bno055.bus_read = bno055_read;
+//     bno055.bus_write = bno055_write;
+//     bno055.delay_msec = bno055_delay_ms;
+//     bno055.dev_addr = BNO055_I2C_ADDR2;
+//     s8 result = bno055_init(&bno055);
+//     result += bno055_set_power_mode(BNO055_POWER_MODE_NORMAL);
+//     // see page 22 of the datasheet, Section 3.3.1
+//     // we don't use NDOF or NDOF_FMC_OFF because it has a habit of snapping to magnetic north which is undesierable
+//     // instead we use IMUPLUS (acc + gyro fusion) if there is magnetic interference, otherwise M4G (basically relative mag)
+//     result += bno055_set_operation_mode(BNO055_OPERATION_MODE_IMUPLUS);
+//     if (result == 0){
+//         Serial.println("BNO055 initialised");
+//     } else {
+//         Serial.printf("BNO055 init error: %d\n", result);
+//     } 
+// }
+
 
 void playModeLED(){
     if (playMode == Mode::attack && attackLEDTimer.timeHasPassed()){
@@ -379,3 +405,4 @@ void playModeLED(){
         ledOn = !ledOn;
     }
 }
+

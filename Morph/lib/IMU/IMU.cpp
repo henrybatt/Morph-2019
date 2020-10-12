@@ -70,9 +70,7 @@ void IMU::read() {
 	previousTime = currentTime;
 
     #if DEBUG_COMPASS
-        Serial.print(heading);
-        Serial.print(", ");
-        Serial.println(correction);
+        Serial.println(heading);
     #endif
 }
 
